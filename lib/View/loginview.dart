@@ -72,9 +72,14 @@ class _LoginViewState extends State<LoginView> {
                   onPressed: _handleLogin, 
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Color(0xFF6A5ACD),
+                    foregroundColor: Colors.white, 
+                    padding: EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                    textStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                     shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
                   child: Text('Entrar'),
-
                 );
               },
             ),
