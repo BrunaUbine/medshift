@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:meuapppdv/Model/model.dart';
+import 'package:meuapppdv/Model/loginmodel.dart';
 
 class LoginController {
   final TextEditingController emailController = TextEditingController();

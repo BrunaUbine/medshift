@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:meuapppdv/View/loginview.dart';
 
 void main() {
   runApp(const MainApp());
@@ -9,12 +10,13 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: Scaffold(
-        body: Center(
-          child: Text('Hello World!'),
-        ),
+    return MaterialApp(
+      title: 'learnix',
+      theme: ThemeData(
+        primarySwatch: Colors.deepPurple,
       ),
+      home: const LoginView(), //  Aqui você exibe a LoginView
+      debugShowCheckedModeBanner: false,
     );
   }
 }
