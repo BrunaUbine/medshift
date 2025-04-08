@@ -36,7 +36,13 @@ class _LoginViewState extends State<LoginView> {
     Widget build(BuildContext context) {
       return Scaffold(
         appBar: AppBar(
-          title: Text('Learnix'),
+          title: Text(
+            'Learnix',
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
+            ),
           backgroundColor: Color(0xFF6A5ACD),
           centerTitle: true,
           
