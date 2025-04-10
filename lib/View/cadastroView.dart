@@ -1,39 +1,41 @@
 import 'package:flutter/material.dart';
-import 'package:meuapppdv/Controller/logincontroller.dart';
-import 'package:meuapppdv/View/cadastroview.dart';
+import 'package:meuapppdv/Controller/cadastrocontroller.dart';
+import 'package:flutter_multi_formatter/flutter_multi_formatter.dart';
 
 
-class LoginView extends StatefulWidget {
-  const LoginView({super.key});
+class Cadastroview extends StatefulWidget {
+  const Cadastroview({super.key});
   @override
-  _LoginViewState createState() => _LoginViewState();
+  _CadastroViewState createState() => _CadastroViewState();
 }
 
-class _LoginViewState extends State<LoginView> {
-  final LoginController _controller = LoginController();
+class _CadastroViewState extends State<Cadastroview> {
+  final Cadastrocontroller _controller = Cadastrocontroller();
 
-  void _handleLogin() async {
-    bool success = await _controller.login();
-    if(success){
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Login realizado com sucesso')),
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Email ou senha inválidos')),
-      );
-    }
-  }
-  void _handleEsqueciasenha() async {
+void _handleCadastros() async {
+  String? erro = await _controller.cadastro();
+
+  if (erro == null) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Link de recuperação enviado')),
+      SnackBar(content: Text('Cadastro realizado com sucesso')),
+    );
+  } else {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text('Erro no Cadastro'),
+        content: Text(erro),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('OK'),
+          )
+        ],
+      ),
     );
   }
-      void _handleCadastro(){
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Aguarde')),
-        );
-      }
+}
+
   @override
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
@@ -41,7 +43,7 @@ class _LoginViewState extends State<LoginView> {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'Learnix',
+          'Cadastro',
           style: TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.bold,
@@ -58,13 +60,13 @@ class _LoginViewState extends State<LoginView> {
             children: [
               SizedBox(height: screenHeight * 0.05), // espaçamento no topo
 
-              // Logo aumentada
-              SizedBox(
-                height: 200,
-                child: Image.asset('assets/images/logo.png'),
+              // Campo de Nome
+              TextField(
+                controller: _controller.nomeController,
+                decoration: const InputDecoration(labelText: 'Nome'),
               ),
 
-              SizedBox(height: 40),
+              SizedBox(height: 20),
 
               // Campo de Email
               TextField(
@@ -74,22 +76,45 @@ class _LoginViewState extends State<LoginView> {
 
               SizedBox(height: 20),
 
-              // Campo de Senha
+              //Campo de Senha
               TextField(
                 controller: _controller.senhaController,
                 decoration: const InputDecoration(labelText: 'Senha'),
                 obscureText: true,
               ),
 
-              Align(
-                alignment: Alignment.centerRight,
-                child: TextButton(
-                  onPressed: _handleEsqueciasenha,
-                  child: const Text('Esqueci minha senha'),
-                ),
+              SizedBox(height: 20),
+              //Campo de Confirmação de Senha
+
+              TextField(
+                controller: _controller.confirmarSenhaController,
+                decoration: const InputDecoration(labelText: 'Confirmação de senha'),
+                obscureText: true,
+              ),
+              
+              SizedBox(height: 20),              
+
+              //Campo de telefone
+              TextField(
+                controller: _controller.telefoneController,
+                keyboardType: TextInputType.phone,
+                inputFormatters: [PhoneInputFormatter()],
+                decoration: const InputDecoration(
+                  labelText: 'Telefone',
+                  hintText: '(xx) xxxxx-xxxx'),
               ),
 
               SizedBox(height: 20),
+
+              //Campo de Data de Nascimento
+              TextField(
+                controller: _controller.dtNascimentoController,
+                decoration: const InputDecoration(
+                  labelText: 'Data de nascimento',
+                  hintText: 'DD/MM/AAAA',
+                  ),  
+              ),
+
 
               // Botão Entrar com loading
               ValueListenableBuilder<bool>(
@@ -98,7 +123,7 @@ class _LoginViewState extends State<LoginView> {
                   return carregando
                       ? const CircularProgressIndicator()
                       : ElevatedButton(
-                          onPressed: _handleLogin,
+                          onPressed: _handleCadastros,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFF6A5ACD),
                             foregroundColor: Colors.white,
@@ -111,27 +136,12 @@ class _LoginViewState extends State<LoginView> {
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          child: const Text('Entrar'),
+                          child: const Text('Concluir'),
                         );
                 },
               ),
 
               const SizedBox(height: 20),
-
-              // Botão Cadastro
-              OutlinedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const Cadastroview()),
-                  );
-                },
-                style: OutlinedButton.styleFrom(
-                  minimumSize: const Size(double.infinity, 50),
-                ),
-                child: const Text('Cadastrar'),
-              ),
-
             ],
           ),
         ),

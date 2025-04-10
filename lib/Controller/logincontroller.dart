@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:meuapppdv/Model/loginmodel.dart';
+import 'package:meuapppdv/Model/usermodel.dart';
+
 
 class LoginController {
   final TextEditingController emailController = TextEditingController();
@@ -12,7 +13,14 @@ class LoginController {
     String email = emailController.text;
     String senha = senhaController.text;
 
-    LoginModel user = LoginModel(email: email, senha: senha);
+    UsuarioModel user = UsuarioModel(
+        nome: '',
+        email: email,
+        senha: senha,
+        confirmarSenha: '',
+        telefone: '',
+        dtNascimento: DateTime(2000, 1, 1),
+    );
 
     await Future.delayed(Duration(seconds: 2)); // Simula uma requisição
 
