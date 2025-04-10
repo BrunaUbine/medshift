@@ -29,11 +29,7 @@ class _LoginViewState extends State<LoginView> {
       SnackBar(content: Text('Link de recuperação enviado')),
     );
   }
-      void _handleCadastro(){
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Aguarde')),
-        );
-      }
+
   @override
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;

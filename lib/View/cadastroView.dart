@@ -13,6 +13,8 @@ class _CadastroViewState extends State<Cadastroview> {
   final Cadastrocontroller _controller = Cadastrocontroller();
 
 void _handleCadastros() async {
+  _controller.carregando.value = true; // Ativa o loading
+
   String? erro = await _controller.cadastro();
 
   if (erro == null) {
@@ -20,6 +22,7 @@ void _handleCadastros() async {
       SnackBar(content: Text('Cadastro realizado com sucesso')),
     );
   } else {
+    await Future.delayed(Duration(milliseconds: 500));
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
@@ -33,6 +36,7 @@ void _handleCadastros() async {
         ],
       ),
     );
+    _controller.carregando.value = false;
   }
 }
 
@@ -101,7 +105,7 @@ void _handleCadastros() async {
                 inputFormatters: [PhoneInputFormatter()],
                 decoration: const InputDecoration(
                   labelText: 'Telefone',
-                  hintText: '(xx) xxxxx-xxxx'),
+                  hintText: '+55 (xx) xxxxx-xxxx'),
               ),
 
               SizedBox(height: 20),
