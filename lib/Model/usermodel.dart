@@ -1,16 +1,14 @@
 class UsuarioModel {
-  String nome;
-  String email;
-  String senha;
-  String confirmarSenha;
-  String telefone;
-  DateTime dtNascimento;
+  final String nome;
+  final String email;
+  final String senha;
+  final String telefone;
+  final DateTime dtNascimento;
 
   UsuarioModel({
     required this.nome,
     required this.email,
     required this.senha,
-    required this.confirmarSenha,
     required this.telefone,
     required this.dtNascimento,
   });

@@ -17,7 +17,6 @@ class LoginController {
         nome: '',
         email: email,
         senha: senha,
-        confirmarSenha: '',
         telefone: '',
         dtNascimento: DateTime(2000, 1, 1),
     );

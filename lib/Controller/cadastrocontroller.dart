@@ -39,7 +39,6 @@ class Cadastrocontroller {
       nome: nome,
       email: email,
       senha: senha,
-      confirmarSenha: confirmarSenha,
       telefone: telefone,
       dtNascimento: dtnascimento,
     );
