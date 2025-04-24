@@ -11,12 +11,22 @@ class MainApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'learnix',
-      theme: ThemeData(
-        primarySwatch: Colors.deepPurple,
+    title: 'MedShift',
+    theme: ThemeData(
+      primarySwatch: Colors.blue,
+      scaffoldBackgroundColor: const Color(0xFFF5F9FF), // azul claro sutil
+      appBarTheme: const AppBarTheme(
+        backgroundColor: Color(0xFF1976D2), // azul medicina
+        foregroundColor: Colors.white,
       ),
-      home: const LoginView(), //  Aqui você exibe a LoginView
-      debugShowCheckedModeBanner: false,
-    );
-  }
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Color(0xFF1976D2),
+          foregroundColor: Colors.white,
+        ),
+      ),
+    ),
+    home: const LoginView(),
+  );  
+ }
 }

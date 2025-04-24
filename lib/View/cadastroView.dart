@@ -53,7 +53,7 @@ void _handleCadastros() async {
             fontWeight: FontWeight.bold,
           ),
         ),
-        backgroundColor: const Color(0xFF6A5ACD),
+        backgroundColor: const Color(0xFF1976D2),
         centerTitle: true,
       ),
       body: SingleChildScrollView(
@@ -129,7 +129,7 @@ void _handleCadastros() async {
                       : ElevatedButton(
                           onPressed: _handleCadastros,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF6A5ACD),
+                            backgroundColor: const Color(0xFF1976D2),
                             foregroundColor: Colors.white,
                             minimumSize: const Size(double.infinity, 50),
                             shape: RoundedRectangleBorder(

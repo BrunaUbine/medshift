@@ -37,13 +37,13 @@ class _LoginViewState extends State<LoginView> {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'Learnix',
+          'Medshift',
           style: TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.bold,
           ),
         ),
-        backgroundColor: const Color(0xFF6A5ACD),
+        backgroundColor: Colors.blue,
         centerTitle: true,
       ),
       body: SingleChildScrollView(
@@ -96,7 +96,7 @@ class _LoginViewState extends State<LoginView> {
                       : ElevatedButton(
                           onPressed: _handleLogin,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF6A5ACD),
+                            backgroundColor: const Color(0xFF1976D2),
                             foregroundColor: Colors.white,
                             minimumSize: const Size(double.infinity, 50),
                             shape: RoundedRectangleBorder(
@@ -123,6 +123,8 @@ class _LoginViewState extends State<LoginView> {
                   );
                 },
                 style: OutlinedButton.styleFrom(
+                  side: const BorderSide(color: Color(0xFF1976D2)),
+                  foregroundColor: Color(0xFF1976D2),
                   minimumSize: const Size(double.infinity, 50),
                 ),
                 child: const Text('Cadastrar'),
