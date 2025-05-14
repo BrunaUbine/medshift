@@ -1,24 +1,23 @@
 import 'package:meuapppdv/Model/usermodel.dart';
 
-class Medicomodel extends UsuarioModel {
-  final String crm;
-  final String especialidade;
+class Enfermeiromodel extends UsuarioModel {
+  final String coren;
 
 
-  Medicomodel({
+
+  Enfermeiromodel({
     
     required super.nome,
     required super.email,
     required super.senha,
     required super.dtNascimento,
     required super.telefone,
-    required this.crm,
-    required this.especialidade,
+    required this.coren,
   });
 
 
   bool crmvalido() {
-    return crm.length == 6;
+    return crm.length == 7;
   }
 
 }
