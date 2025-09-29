@@ -17,7 +17,7 @@ class Enfermeiromodel extends UsuarioModel {
 
 
   bool crmvalido() {
-    return crm.length == 7;
+    return coren.length == 7;
   }
 
 }

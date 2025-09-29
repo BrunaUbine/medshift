@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:meuapppdv/Controller/logincontroller.dart';
 import 'package:meuapppdv/View/cadastroview.dart';
+import 'package:meuapppdv/View/EsqueciASenhaView.dart';
 
 
 class LoginView extends StatefulWidget {
@@ -24,10 +25,14 @@ class _LoginViewState extends State<LoginView> {
       );
     }
   }
-  void _handleEsqueciasenha() async {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Link de recuperação enviado')),
+  void _handleEsqueciaSenha() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const esqueciaSenhaView(),
+      ),
     );
+  }
   }
 
   @override
@@ -80,7 +85,7 @@ class _LoginViewState extends State<LoginView> {
               Align(
                 alignment: Alignment.centerRight,
                 child: TextButton(
-                  onPressed: _handleEsqueciasenha,
+                  onPressed: _handleEsqueciaSenha,
                   child: const Text('Esqueci minha senha'),
                 ),
               ),
