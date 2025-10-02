@@ -5,6 +5,8 @@ class EsqueciASenhaController {
   final carregando = ValueNotifier<bool>(false);
 
   Future<String?> esqueciasenha() async {
+    String email = emailController.text;
+    if (email.isEmpty || !email.contains('@')) return 'Email inválido.';
     try {
       // Simulação do envio do link
       await Future.delayed(Duration(seconds: 2));

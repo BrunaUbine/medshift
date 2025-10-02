@@ -4,19 +4,19 @@ import 'package:meuapppdv/View/loginview.dart';
 
 class EsqueciSenhaView extends StatefulWidget {
   const EsqueciSenhaView({super.key});
-
-  @override
-  _EsqueciSenhaViewState createState() => _EsqueciSenhaViewState();
+   @override
+  _EsqueciasenhaViewState createState() => _EsqueciasenhaViewState();
 }
 
-class _EsqueciSenhaViewState extends State<EsqueciSenhaView> {
-  final EsqueciSenhaController _controller = EsqueciSenhaController();
 
-  void _handleEsqueciSenha() async {
+class _EsqueciasenhaViewState extends State<EsqueciSenhaView> {
+  final EsqueciASenhaController _controller = EsqueciASenhaController();
+
+void _handleEsqueciSenha() async {
     _controller.carregando.value = true;
 
     String email = _controller.emailController.text.trim();
-    String? erro = await _controller.esqueciSenha(email);
+    String? erro = await _controller.esqueciasenha();
 
     _controller.carregando.value = false;
 
@@ -56,6 +56,8 @@ class _EsqueciSenhaViewState extends State<EsqueciSenhaView> {
                 labelText: 'E-mail',
                 border: OutlineInputBorder(),
               ),
+              textInputAction: TextInputAction.done, // muda o botão do teclado
+              onSubmitted: (_) => _handleEsqueciSenha(),  // aqui chama o login ao pressionar "Enter"
             ),
             const SizedBox(height: 20),
             ValueListenableBuilder<bool>(

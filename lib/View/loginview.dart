@@ -6,7 +6,7 @@ import 'package:meuapppdv/View/EsqueciASenhaView.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
-  @override
+   @override
   _LoginViewState createState() => _LoginViewState();
 }
 
@@ -29,11 +29,11 @@ class _LoginViewState extends State<LoginView> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => const esqueciaSenhaView(),
+        builder: (context) => const EsqueciSenhaView(),
       ),
     );
   }
-  }
+  
 
   @override
   Widget build(BuildContext context) {
@@ -80,6 +80,7 @@ class _LoginViewState extends State<LoginView> {
                 controller: _controller.senhaController,
                 decoration: const InputDecoration(labelText: 'Senha'),
                 obscureText: true,
+                onSubmitted: (_) => _handleLogin(), // aqui chama o login ao pressionar "Enter"
               ),
 
               Align(
