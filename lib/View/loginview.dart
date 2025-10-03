@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:meuapppdv/Controller/logincontroller.dart';
 import 'package:meuapppdv/View/cadastroview.dart';
 import 'package:meuapppdv/View/EsqueciASenhaView.dart';
+import 'package:meuapppdv/View/paginicialview.dart';
 
 
 class LoginView extends StatefulWidget {
@@ -16,6 +17,12 @@ class _LoginViewState extends State<LoginView> {
   void _handleLogin() async {
     bool success = await _controller.login();
     if(success){
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const paginaInicialView(),
+          ),
+          );
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Login realizado com sucesso')),
       );

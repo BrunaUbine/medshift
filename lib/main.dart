@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:meuapppdv/View/loginview.dart';
+import 'package:meuapppdv/Controller/paginicialcontroller.dart';
+
 
 void main() {
   runApp(const MainApp());
@@ -10,7 +13,7 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return MultiProvider(
     title: 'MedShift',
     theme: ThemeData(
       primarySwatch: Colors.blue,
