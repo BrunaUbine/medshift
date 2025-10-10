@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../AppState.dart';
+import '../Controller/prontuariocontroller.dart';
 import '../model/entrada_paciente.dart';
 import '../bancoDeDados/banco_de_dados_simulado.dart';
 import 'package:intl/intl.dart';
@@ -13,23 +13,17 @@ class ProntuarioView extends StatefulWidget {
 }
 
 class _ProntuarioViewState extends State<ProntuarioView> {
-  final _tituloCtl = TextEditingController();
-  final _descCtl = TextEditingController();
+  final _controller = ProntuarioController();
 
   @override
   Widget build(BuildContext context) {
-    final state = AppStateWidget.of(context);
-    final int? patienteIdArg = ModalRoute.of(context)!.settings.arguments as int?;
-    final int? idPaciente = patienteIdArg;
-    final paciente = idPaciente!= null ? BancoDeDadosSimulado.selecionePorIdPaciente(idPaciente) : null;
-
     return Scaffold(
       appBar: AppBar(
         title: Text('Prontuário Clínico'),
         actions: [buildPopupMenu(context)],
       ),
       body: Padding(
-        padding: EdgeInsets.all(12),
+        padding: EdgeInsets.all(16.0),
         child: Column(children: [
           if (paciente != null)
             Card(

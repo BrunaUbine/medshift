@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart'; // NECESSÁRIO para acessar o AppState
+import 'package:provider/provider.dart'; 
 import '../AppState.dart';
 import 'tela_compartilhadaView.dart';
 

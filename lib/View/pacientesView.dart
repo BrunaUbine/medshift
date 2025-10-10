@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:meuapppdv/Controller/pacientesController.dart';
 import '../bancoDeDados/banco_de_dados_simulado.dart';
+import 'package:meuapppdv/View/tela_compartilhadaView.dart';
 
 
 class PacientesView extends StatefulWidget {
@@ -18,7 +19,9 @@ class _PacientesViewState extends State<PacientesView> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Cadastro de Pacientes'),
-        actions: [_menu(context)],
+        actions: [
+          buildPopupMenu(context), 
+        ],
       ),
       body: Padding(
         padding: EdgeInsets.all(16.0),
@@ -34,6 +37,14 @@ class _PacientesViewState extends State<PacientesView> {
                     TextField(
                       controller: controller.nomeCtl,
                       decoration: const InputDecoration(labelText: 'Nome'),
+                    ),
+                      TextField(
+                      controller: controller.telefoneCtl,
+                      decoration: const InputDecoration(labelText: 'Telefone'),
+                    ),
+                      TextField(
+                      controller: controller.acompanhanteCtl,
+                      decoration: const InputDecoration(labelText: 'Acompanhante'),
                     ),
                   ],
                 ),
@@ -66,16 +77,5 @@ class _PacientesViewState extends State<PacientesView> {
           ),
         ),
       );
-  } PopupMenuButton _menu(BuildContext context) {
-    return PopupMenuButton<String>(
-      onSelected: (value) => Navigator.pushNamed(context, value),
-      itemBuilder: (_) => const [
-        PopupMenuItem(value: '/prontuario', child: Text('Prontuário')),
-        PopupMenuItem(value: '/medicamentos', child: Text('Medicamentos')),
-        PopupMenuItem(value: '/anotacoes', child: Text('Anotações')),
-        PopupMenuItem(value: '/agenda', child: Text('Agenda')),
-        PopupMenuItem(value: '/sobre', child: Text('Sobre')),
-      ],
-    );
   }
 }
