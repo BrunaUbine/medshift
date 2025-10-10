@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:meuapppdv/View/loginview.dart';
-import 'package:meuapppdv/Controller/paginicialcontroller.dart';
-
+import 'Controller/paginicialcontroller.dart';
+import 'View/loginview.dart';
+import 'View/pacientesview.dart';
+import 'View/prontuariosview.dart';
+import 'View/medicamentosview.dart';
+import 'View/anotacoesview.dart';
+import 'View/agendaview.dart';
+import 'View/sobreview.dart';
 
 void main() {
   runApp(const MainApp());
@@ -18,6 +23,7 @@ class MainApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => PagInicialController()),
       ],
       child: MaterialApp(
+        debugShowCheckedModeBanner: false,
         title: 'MedShift',
         theme: ThemeData(
           primarySwatch: Colors.blue,
@@ -28,26 +34,37 @@ class MainApp extends StatelessWidget {
           ),
           elevatedButtonTheme: ElevatedButtonThemeData(
             style: ElevatedButton.styleFrom(
-              backgroundColor: Color(0xFF1976D2),
+              backgroundColor: const Color(0xFF1976D2),
               foregroundColor: Colors.white,
               textStyle: const TextStyle(fontWeight: FontWeight.bold),
-              shape: RoundedRectangleBorder(
+              shape: const RoundedRectangleBorder(
                 borderRadius: BorderRadius.all(Radius.circular(12)),
+              ),
             ),
           ),
+          inputDecorationTheme: InputDecorationTheme(
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            focusedBorder: const OutlineInputBorder(
+              borderSide: BorderSide(color: Color(0xFF1976D2), width: 2),
+            ),
+            labelStyle: const TextStyle(color: Color(0xFF1976D2)),
+          ),
         ),
-        inputDecorationTheme: InputDecorationTheme(
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-        focusedBorder: const OutlineInputBorder(
-            borderSide: BorderSide(color: Color(0xFF1976D2), width: 2),
-        ),
-          labelStyle: const TextStyle(color: Color(0xFF1976D2)),
-        ),
+        // Tela inicial
+        home: const LoginView(),
+
+        // Rotas nomeadas para as demais telas
+        routes: {
+          '/pacientes': (context) => const PacientesView(),
+          '/prontuario': (context) => const ProntuarioView(),
+          '/medicamentos': (context) => const MedicamentosView(),
+          '/anotacoes': (context) => const AnotacoesView(),
+          '/agenda': (context) => const AgendaView(),
+          '/sobre': (context) => const SobreView(),
+        },
       ),
-      home: const LoginView(),
-    ),
-  );  
- }
+    );
+  }
 }

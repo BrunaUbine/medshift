@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// O Controller gerencia a lógica e o estado da tela inicial.
-/// Foi alterado de 'paginicialController' para 'PagInicialController'
-/// para seguir a convenção de nomes PascalCase (padrão em Dart).
+
 class PagInicialController extends ChangeNotifier {
   final List<String> funcionalidadeNames = [
     "Pacientes",
@@ -23,11 +21,11 @@ class PagInicialController extends ChangeNotifier {
   };
     List<String> get funcionalidades => funcionalidadeNames;
 
-  /// Retorna o IconData para uma funcionalidade específica.
+  
   IconData getIconFor(String funcionalidade) {
-    return funcionalidadeIcons[funcionalidade] ?? Icons.help_outline; // Ícone padrão caso não encontre
+    return funcionalidadeIcons[funcionalidade] ?? Icons.help_outline;
   }
-  /// Navega para a tela correspondente ao item clicado.
+
   void aoClicar(BuildContext context, String funcionalidade) {
     String route = "";
 
@@ -51,14 +49,14 @@ class PagInicialController extends ChangeNotifier {
         route = "/sobre";
         break;
       default:
-        // Caso de segurança
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Funcionalidade $funcionalidade não encontrada.')),
         );
         return;
     }
 
-    // Tenta navegar para a rota definida no MaterialApp
+
     Navigator.pushNamed(context, route);
   }
 }
