@@ -1,113 +1,96 @@
 import 'package:flutter/material.dart';
-import '../Controller/prontuariocontroller.dart';
-import '../model/entrada_paciente.dart';
-import '../bancoDeDados/banco_de_dados_simulado.dart';
-import 'package:intl/intl.dart';
-import 'tela_compartilhadaView.dart';
+import 'package:meuapppdv/Controller/prontuarioController.dart';
+import '../AppState.dart';
+import '../model/paciente.dart';
+import '../View/tela_compartilhadaView.dart';
 
-class ProntuarioView extends StatefulWidget {
-  const ProntuarioView({super.key});
+class ProntuariosView extends StatefulWidget {
+  const ProntuariosView({super.key});
 
   @override
-  State<ProntuarioView> createState() => _ProntuarioViewState();
+  State<ProntuariosView> createState() => _ProntuariosViewState();
 }
 
-class _ProntuarioViewState extends State<ProntuarioView> {
-  final _controller = ProntuarioController();
+class _ProntuariosViewState extends State<ProntuariosView> {
+  final controller = ProntuarioController();
+  int? pacienteSelecionado;
 
   @override
   Widget build(BuildContext context) {
+    final state = AppStateWidget.of(context);
+    final pacientes = state.pacientes;
+
     return Scaffold(
       appBar: AppBar(
-        title: Text('Prontuário Clínico'),
-        actions: [buildPopupMenu(context)],
+        title: const Text('Prontuário Clínico'),
+        actions: [
+          buildPopupMenu(context), 
+        ],
       ),
       body: Padding(
-        padding: EdgeInsets.all(16.0),
-        child: Column(children: [
-          if (paciente != null)
-            Card(
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              elevation: 2,
-              child: ListTile(
-                leading: CircleAvatar(child: Text(paciente.nome.isNotEmpty ? paciente.nome[0].toUpperCase() : 'P')),
-                title: Text(paciente.nome),
-                subtitle: Text('Tel: ${paciente.telefone} • Acomp.: ${paciente.acompanhante.isEmpty ? '-' : paciente.acompanhante}'),
-              ),
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          children: [
+            DropdownButtonFormField<int>(
+              value: pacienteSelecionado,
+              isExpanded: true,
+              decoration: const InputDecoration(labelText: 'Paciente'),
+              items: pacientes.map((Paciente p) {
+                return DropdownMenuItem(value: p.id, child: Text(p.nome));
+              }).toList(),
+              onChanged: (v) => setState(() => pacienteSelecionado = v),
             ),
-          SizedBox(height: 8),
-          Expanded(
-            child: AnimatedBuilder(
-              animation: state,
-              builder: (context, _) {
-                final entradas = state.prontuarios.where((e) => e.idPaciente == (idPaciente ?? -1)).toList();
-                if (entradas.isEmpty) {
-                  return Center(child: Text('Nenhum registro de prontuário para este paciente.'));
-                }
-                entradas.sort((a, b) => b.criadoEm.compareTo(a.criadoEm));
-                return ListView.separated(
-                  itemCount: entradas.length,
-                  separatorBuilder: (_, __) => SizedBox(height: 8),
-                  itemBuilder: (context, i) {
-                    final Entrada_paciente e = entradas[i];
-                    final df = DateFormat('dd/MM/yyyy HH:mm');
-                    return Card(
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                      child: Padding(
-                        padding: EdgeInsets.all(12),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(e.titulo, style: TextStyle(fontWeight: FontWeight.bold)),
-                            SizedBox(height: 6),
-                            Text(e.descricao),
-                            SizedBox(height: 8),
-                            Align(alignment: Alignment.bottomRight, child: Text(df.format(e.criadoEm), style: TextStyle(fontSize: 12, color: Colors.grey[600]))),
-                          ],
-                        ),
+            const SizedBox(height: 12),
+            TextFormField(
+              controller: controller.tituloCtl,
+              decoration: const InputDecoration(labelText: 'Título'),
+            ),
+            const SizedBox(height: 8),
+            TextFormField(
+              controller: controller.descricaoCtl,
+              decoration: const InputDecoration(labelText: 'Descrição'),
+              maxLines: 3,
+            ),
+            const SizedBox(height: 12),
+            ElevatedButton(
+              onPressed: pacienteSelecionado == null
+                  ? null
+                  : () => controller.adicionarAnotacao(
+                        pacienteSelecionado!,
+                        () => setState(() {}),
                       ),
-                    );
-                  },
-                );
-              },
+              child: const Text('Salvar Anotação'),
             ),
-          ),
-          Divider(),
-          Card(
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            elevation: 2,
-            child: Padding(
-              padding: EdgeInsets.all(12),
-              child: Column(
-                children: [
-                  Text('Adicionar anotação ao prontuário', style: TextStyle(fontWeight: FontWeight.bold)),
-                  SizedBox(height: 8),
-                  TextField(controller: _tituloCtl, decoration: InputDecoration(labelText: 'Título')),
-                  SizedBox(height: 8),
-                  TextField(controller: _descCtl, decoration: InputDecoration(labelText: 'Descrição'), maxLines: 3),
-                  SizedBox(height: 8),
-                  ElevatedButton(
-                    onPressed: () {
-                      if (idPaciente == null) {
-                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Selecione um paciente antes (via tela Pacientes).')));
-                        return;
-                      }
-                      if (_tituloCtl.text.trim().isEmpty || _descCtl.text.trim().isEmpty) {
-                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Preencha título e descrição.')));
-                        return;
-                      }
-                      state.addEntradaPaciente(idPaciente, _tituloCtl.text.trim(), _descCtl.text.trim());
-                      _tituloCtl.clear();
-                      _descCtl.clear();
-                      FocusScope.of(context).unfocus();
-                    },
-                    child: SizedBox(width: double.infinity, child: Center(child: Text('Salvar no prontuário'))),
-                  )
-                ],
+            const Divider(height: 24),
+            const Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                'Histórico de Prontuário',
+                style: TextStyle(fontWeight: FontWeight.bold),
               ),
             ),
-          ),
-        ]),
+            const SizedBox(height: 8),
+            Expanded(
+              child: ListView(
+                children: controller
+                    .listarPorPaciente(pacienteSelecionado ?? -1)
+                    .map((a) => Card(
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12)),
+                          child: ListTile(
+                            title: Text(a.titulo),
+                            subtitle: Text(a.descricao),
+                            trailing: Text(
+                              '${a.criadoEm.day}/${a.criadoEm.month}',
+                              style: const TextStyle(color: Colors.grey),
+                            ),
+                          ),
+                        ))
+                    .toList(),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

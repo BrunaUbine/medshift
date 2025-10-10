@@ -4,7 +4,7 @@
   import 'Controller/paginicialcontroller.dart';
   import 'View/loginview.dart';
   import 'View/pacientesview.dart';
-  import 'View/prontuariosview.dart';
+  import 'View/prontuariosView.dart';
   import 'View/medicamentosview.dart';
   import 'View/anotacoesview.dart';
   import 'View/agendaview.dart';
@@ -60,7 +60,7 @@
 
         routes: {
           '/pacientes': (context) => const PacientesView(),
-          '/prontuario': (context) => const ProntuarioView(),
+          '/prontuarios': (context) => const ProntuariosView(),
           '/medicamentos': (context) => MedicamentosView(), 
           '/anotacoes': (context) => AnotacoesView(),
           '/agenda': (context) => AgendaView(),

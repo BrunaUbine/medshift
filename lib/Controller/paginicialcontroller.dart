@@ -34,7 +34,7 @@ class PagInicialController extends ChangeNotifier {
         route = "/pacientes";
         break;
       case "Prontuário":
-        route = "/prontuario";
+        route = "/prontuarios";
         break;
       case "Agenda":
         route = "/agenda";
