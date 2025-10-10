@@ -12,9 +12,9 @@ class PacientesController {
     final nome = nomeCtl.text.trim();
     if (nome.isEmpty) return;
 
-    final id = BancoDeDadosSimulado().pacientes.isEmpty
+    final id = BancoDeDadosSimulado.pacientes.isEmpty 
         ? 1
-        : BancoDeDadosSimulado().pacientes.map((e) => e.id).reduce((a, b) => a > b ? a : b) + 1;
+        : BancoDeDadosSimulado.pacientes.map((e) => e.id).reduce((a, b) => a > b ? a : b) + 1;
 
     final novo = Paciente(
       id: id,
@@ -36,7 +36,7 @@ class PacientesController {
   }
 
   List<Paciente> listarPacientes() {
-    return List.from(BancoDeDadosSimulado().pacientes);
+    return List.from(BancoDeDadosSimulado.pacientes);
   }
 
   void removerPaciente(int id, VoidCallback atualizarUI) {

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart'; // NECESSÁRIO para acessar o AppState
 import '../AppState.dart';
 import 'tela_compartilhadaView.dart';
 
@@ -14,56 +15,85 @@ class _MedicamentosViewState extends State<MedicamentosView> {
   final _doseCtl = TextEditingController();
   final _horarioCtl = TextEditingController();
   final _obsCtl = TextEditingController();
-  final int _patientId = -1; // optional link; -1 = general
+  final int _idpaciente = -1; 
+
+  @override
+  void dispose() {
+    _nomeCtl.dispose();
+    _doseCtl.dispose();
+    _horarioCtl.dispose();
+    _obsCtl.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final state = AppStateWidget.of(context);
+    final state = Provider.of<AppState>(context);
+
+
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Medicamentos'),
-        actions: [buildPopupMenu(context)],
+        title: const Text('Medicamentos'),
+        
+        actions: [buildPopupMenu(context)], 
       ),
       body: Padding(
-        padding: EdgeInsets.all(12),
+        padding: const EdgeInsets.all(12),
         child: Column(children: [
           Card(
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             child: Padding(
-              padding: EdgeInsets.all(12),
+              padding: const EdgeInsets.all(12),
               child: Column(children: [
-                Text('Adicionar medicamento', style: TextStyle(fontWeight: FontWeight.bold)),
-                SizedBox(height: 8),
-                TextField(controller: _nomeCtl, decoration: InputDecoration(labelText: 'Nome')),
-                SizedBox(height: 8),
-                TextField(controller: _doseCtl, decoration: InputDecoration(labelText: 'Dose')),
-                SizedBox(height: 8),
-                TextField(controller: _horarioCtl, decoration: InputDecoration(labelText: 'Horário')),
-                SizedBox(height: 8),
-                TextField(controller: _obsCtl, decoration: InputDecoration(labelText: 'Observação')),
-                SizedBox(height: 10),
+                const Text('Adicionar medicamento', style: TextStyle(fontWeight: FontWeight.bold)),
+                const SizedBox(height: 8),
+                TextField(controller: _nomeCtl, decoration: const InputDecoration(labelText: 'Nome')),
+                const SizedBox(height: 8),
+                TextField(controller: _doseCtl, decoration: const InputDecoration(labelText: 'Dose')),
+                const SizedBox(height: 8),
+                TextField(controller: _horarioCtl, decoration: const InputDecoration(labelText: 'Horário')),
+                const SizedBox(height: 8),
+                TextField(controller: _obsCtl, decoration: const InputDecoration(labelText: 'Observação')),
+                const SizedBox(height: 10),
                 ElevatedButton(
                   onPressed: () {
                     if (_nomeCtl.text.trim().isEmpty) return;
-                    state.addMedicamento(_patientId, _nomeCtl.text.trim(), _doseCtl.text.trim(), _horarioCtl.text.trim(), _obsCtl.text.trim());
-                    _nomeCtl.clear(); _doseCtl.clear(); _horarioCtl.clear(); _obsCtl.clear();
+                    
+                    
+                    state.addMedicamento(
+                      _idpaciente, 
+                      _nomeCtl.text.trim(), 
+                      _doseCtl.text.trim(), 
+                      _horarioCtl.text.trim(), 
+                      _obsCtl.text.trim(),
+                    );
+                    
+                    
+                    _nomeCtl.clear(); 
+                    _doseCtl.clear(); 
+                    _horarioCtl.clear(); 
+                    _obsCtl.clear();
                   },
-                  child: SizedBox(width: double.infinity, child: Center(child: Text('Salvar medicamento'))),
+                  child: const SizedBox(
+                    width: double.infinity, 
+                    child: Center(child: Text('Salvar medicamento'))
+                  ),
                 ),
               ]),
             ),
           ),
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
           Expanded(
             child: AnimatedBuilder(
               animation: state,
               builder: (context, _) {
                 final meds = state.medicamentos;
-                if (meds.isEmpty) return Center(child: Text('Nenhum medicamento cadastrado.'));
+                if (meds.isEmpty) return const Center(child: Text('Nenhum medicamento cadastrado.'));
+                
                 return ListView.separated(
                   itemCount: meds.length,
-                  separatorBuilder: (_, __) => SizedBox(height: 8),
+                  separatorBuilder: (_, __) => const SizedBox(height: 8),
                   itemBuilder: (context, i) {
                     final m = meds[i];
                     return Card(

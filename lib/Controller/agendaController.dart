@@ -38,7 +38,7 @@ class AgendaController {
   }
 
   List<Agenda> listarEventos() {
-    final eventos = List.from(BancoDeDadosSimulado.agenda);
+    final eventos = List<Agenda>.from(BancoDeDadosSimulado.agenda);
     eventos.sort((a, b) => a.dataHora.compareTo(b.dataHora));
     return eventos;
   }

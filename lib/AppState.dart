@@ -8,7 +8,7 @@ import '../model/agenda.dart';
 
 class AppState extends ChangeNotifier {
   
-  List<Paciente> get pacientes => BancoDeDadosSimulado().pacientes;
+  List<Paciente> get pacientes => BancoDeDadosSimulado.pacientes;
   List<Entrada_paciente> get prontuarios => BancoDeDadosSimulado.prontuarios;
   List<Medicamento> get medicamentos => BancoDeDadosSimulado.medicamentos;
   List<Anotacao> get anotacoes => BancoDeDadosSimulado.anotacoes;

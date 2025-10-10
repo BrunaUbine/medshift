@@ -1,6 +1,5 @@
-import 'package:meuapppdv/Model/entrada_paciente.dart';
+import 'package:meuapppdv/model/entrada_paciente.dart';
 import 'package:meuapppdv/bancoDeDados/banco_de_dados_simulado.dart';
-import 'package:meuapppdv/Controller/pacientesController.dart';
 import 'package:flutter/material.dart';
 
 class ProntuarioController {
@@ -10,7 +9,7 @@ class ProntuarioController {
   void adicionarAnotacao(int idPaciente, VoidCallback atualizarUI) {
     if (tituloCtl.text.trim().isEmpty || descricaoCtl.text.trim().isEmpty) return;
 
-    final id = BancoDeDadosSimulado().prontuarios.isEmpty
+    final id = BancoDeDadosSimulado.prontuarios.isEmpty
         ? 1
         : BancoDeDadosSimulado.prontuarios.map((e) => e.id).reduce((a, b) => a > b ? a : b) + 1;
 
@@ -27,12 +26,14 @@ class ProntuarioController {
     atualizarUI();
   }
 
-  List<Entrada_paciente> listarPorPaciente(int isPaciente) {
-    return BancoDeDadosSimulado.prontuarios
+  List<Entrada_paciente> listarPorPaciente(int idPaciente) {
+    final listaFiltrada = BancoDeDadosSimulado.prontuarios
         .where((p) => p.idPaciente == idPaciente)
-        .toList()
-      ..sort((a, b) => b.criadoEm.compareTo(a.criadoEm));
+        .toList();
+    listaFiltrada.sort((a, b) => b.criadoEm.compareTo(a.criadoEm));
+    return listaFiltrada;
   }
+  
 
   void limparCampos() {
     tituloCtl.clear();
