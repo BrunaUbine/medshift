@@ -20,7 +20,7 @@ class _LoginViewState extends State<LoginView> {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => const paginaInicialView(),
+          builder: (context) => const PaginaInicialView(),
           ),
           );
       ScaffoldMessenger.of(context).showSnackBar(
