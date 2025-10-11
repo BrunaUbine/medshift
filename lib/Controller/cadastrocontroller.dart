@@ -43,7 +43,7 @@ class Cadastrocontroller {
       dtNascimento: dtnascimento,
     );
 
-    // Simula requisição
+    
     await Future.delayed(Duration(seconds: 2));
 
     return null; // sucesso
