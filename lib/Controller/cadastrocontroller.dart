@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:meuapppdv/Model/usermodel.dart';
+import 'package:medshift/Model/usermodel.dart';
 import 'package:intl/intl.dart';
 
 class Cadastrocontroller {

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:meuapppdv/Controller/esqueciASenhaController.dart';
-import 'package:meuapppdv/View/loginview.dart';
+import 'package:medshift/Controller/esqueciASenhaController.dart';
+import 'package:medshift/View/loginview.dart';
 
 class EsqueciSenhaView extends StatefulWidget {
   const EsqueciSenhaView({super.key});

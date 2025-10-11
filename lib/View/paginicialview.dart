@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:meuapppdv/Controller/paginicialcontroller.dart';
+import 'package:medshift/Controller/paginicialcontroller.dart';
 import 'package:provider/provider.dart';
 
 class PaginaInicialView extends StatelessWidget {

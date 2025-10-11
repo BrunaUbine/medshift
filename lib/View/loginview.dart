@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:meuapppdv/Controller/logincontroller.dart';
-import 'package:meuapppdv/View/cadastroview.dart';
-import 'package:meuapppdv/View/EsqueciASenhaView.dart';
-import 'package:meuapppdv/View/paginicialview.dart';
+import 'package:medshift/Controller/logincontroller.dart';
+import 'package:medshift/View/cadastroview.dart';
+import 'package:medshift/View/EsqueciASenhaView.dart';
+import 'package:medshift/View/paginicialview.dart';
 
 
 class LoginView extends StatefulWidget {

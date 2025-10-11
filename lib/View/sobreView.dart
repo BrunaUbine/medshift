@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'tela_compartilhadaView.dart';
+import 'package:medshift/View/tela_compartilhadaView.dart';
+
 
 class SobreView extends StatelessWidget {
   const SobreView({super.key});
@@ -8,27 +9,42 @@ class SobreView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Sobre'),
-        actions: [buildPopupMenu(context)],
+        title: const Text('Sobre o App'),
+        actions: [
+          buildPopupMenu(context), 
+        ],
       ),
       body: Padding(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
         child: Card(
+          elevation: 3,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          elevation: 2,
           child: Padding(
-            padding: EdgeInsets.all(12),
-            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text('Nome do App', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-              SizedBox(height: 8),
-              Text('Objetivo: Exemplo de prontuário clínico e gerenciamento simples de pacientes.'),
-              SizedBox(height: 12),
-              Text('Integrantes:', style: TextStyle(fontWeight: FontWeight.bold)),
-              SizedBox(height: 6),
-              Text('- Bruna (autor)'),
-              SizedBox(height: 16),
-              Align(alignment: Alignment.centerRight, child: ElevatedButton(onPressed: () => Navigator.pop(context), child: Text('Voltar')))
-            ]),
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: const [
+                Text(
+                  'MedShift',
+                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                ),
+                SizedBox(height: 12),
+                Text(
+                  'O MedShift é um aplicativo desenvolvido para auxiliar profissionais de saúde '
+                  'no gerenciamento de pacientes, prontuários, medicamentos e anotações de forma prática e segura.',
+                ),
+                SizedBox(height: 12),
+                Text(
+                  'Versão: 1.0.0',
+                  style: TextStyle(color: Colors.grey),
+                ),
+                SizedBox(height: 12),
+                Text(
+                  'Desenvolvido por: Bruna Luiza',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
           ),
         ),
       ),

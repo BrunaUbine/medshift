@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:meuapppdv/bancoDeDados/banco_de_dados_simulado.dart';
+import 'package:flutter_multi_formatter/flutter_multi_formatter.dart';
+import 'package:medshift/bancoDeDados/banco_de_dados_simulado.dart';
 import '../model/paciente.dart';
 import '../model/entrada_paciente.dart';
 import '../model/medicamentos.dart';
@@ -9,7 +10,7 @@ import '../model/agenda.dart';
 class AppState extends ChangeNotifier {
   
   List<Paciente> get pacientes => BancoDeDadosSimulado.pacientes;
-  List<Entrada_paciente> get prontuarios => BancoDeDadosSimulado.prontuarios;
+  List<EntradaPaciente> get prontuarios => BancoDeDadosSimulado.prontuarios;
   List<Medicamento> get medicamentos => BancoDeDadosSimulado.medicamentos;
   List<Anotacao> get anotacoes => BancoDeDadosSimulado.anotacoes;
   List<Agenda> get agenda => BancoDeDadosSimulado.agenda;
@@ -23,7 +24,7 @@ class AppState extends ChangeNotifier {
 
   void addEntradaPaciente(int idPaciente, String titulo, String descricao) {
     final id = prontuarios.isEmpty ? 1 : prontuarios.map((e) => e.id).reduce((a, b) => a > b ? a : b) + 1;
-    final e = Entrada_paciente(id: id, idPaciente: idPaciente, criadoEm: DateTime.now(), titulo: titulo, descricao: descricao);
+    final e = EntradaPaciente(id: id, pacienteId: idPaciente, criadoEm: DateTime.now(), titulo: titulo, descricao: descricao);
     prontuarios.add(e);
     notifyListeners();
   }

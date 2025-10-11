@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../AppState.dart';
-import 'tela_compartilhadaView.dart';
+import 'package:medshift/Controller/agendaController.dart';
+import 'package:medshift/View/tela_compartilhadaView.dart';
 
 class AgendaView extends StatefulWidget {
   const AgendaView({super.key});
@@ -10,78 +10,81 @@ class AgendaView extends StatefulWidget {
 }
 
 class _AgendaViewState extends State<AgendaView> {
-  final _descCtl = TextEditingController();
-  DateTime? _selected;
-
-  Future<void> _pickDate(BuildContext context) async {
-    final now = DateTime.now();
-    final date = await showDatePicker(context: context, initialDate: now, firstDate: DateTime(now.year - 2), lastDate: DateTime(now.year + 2));
-    if (date == null) return;
-    final time = await showTimePicker(context: context, initialTime: TimeOfDay.now());
-    if (time == null) return;
-    setState(() {
-      _selected = DateTime(date.year, date.month, date.day, time.hour, time.minute);
-    });
-  }
+  final controller = AgendaController();
 
   @override
   Widget build(BuildContext context) {
-    final state = AppStateWidget.of(context);
     return Scaffold(
-      appBar: AppBar(title: Text('Agenda'), actions: [buildPopupMenu(context)]),
+      appBar: AppBar(
+        title: const Text('Agenda'),
+        actions: [
+          buildPopupMenu(context), 
+        ],
+      ),
       body: Padding(
-        padding: EdgeInsets.all(12),
-        child: Column(children: [
-          Card(
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            child: Padding(
-              padding: EdgeInsets.all(12),
-              child: Column(children: [
-                TextField(controller: _descCtl, decoration: InputDecoration(labelText: 'Descrição')),
-                SizedBox(height: 8),
-                Row(children: [
-                  Expanded(child: Text(_selected == null ? 'Nenhuma data selecionada' : _selected.toString())),
-                  TextButton(onPressed: () => _pickDate(context), child: Text('Selecionar')),
-                ]),
-                SizedBox(height: 8),
-                ElevatedButton(
-                    onPressed: () {
-                      if (_selected == null || _descCtl.text.trim().isEmpty) return;
-                      state.addAgenda(_selected!, _descCtl.text.trim());
-                      _selected = null;
-                      _descCtl.clear();
-                      setState(() {});
-                    },
-                    child: SizedBox(width: double.infinity, child: Center(child: Text('Adicionar compromisso')))),
-              ]),
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          children: [
+            Card(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              elevation: 3,
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Column(
+                  children: [
+                    const Text('Novo Compromisso', style: TextStyle(fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 8),
+                    TextFormField(
+                      controller: controller.descCtl,
+                      decoration: const InputDecoration(labelText: 'Descrição'),
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            controller.dataSelecionada == null
+                                ? 'Nenhuma data selecionada'
+                                : '${controller.dataSelecionada!.day}/${controller.dataSelecionada!.month}/${controller.dataSelecionada!.year} - '
+                                  '${controller.dataSelecionada!.hour.toString().padLeft(2, '0')}:${controller.dataSelecionada!.minute.toString().padLeft(2, '0')}',
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.calendar_today, color: Color(0xFF1976D2)),
+                          onPressed: () => controller.selecionarData(context, () => setState(() {})),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    ElevatedButton(
+                      onPressed: () => setState(() {
+                        controller.adicionarEvento(() => setState(() {}));
+                      }),
+                      child: const Text('Salvar Evento'),
+                    ),
+                  ],
+                ),
+              ),
             ),
-          ),
-          SizedBox(height: 12),
-          Expanded(
-            child: AnimatedBuilder(
-              animation: state,
-              builder: (context, _) {
-                final items = state.agenda;
-                if (items.isEmpty) return Center(child: Text('Nenhum compromisso.'));
-                final sorted = List.from(items)..sort((a, b) => a.dataHora.compareTo(b.dataHora));
-                return ListView.separated(
-                  itemCount: sorted.length,
-                  separatorBuilder: (_, __) => SizedBox(height: 8),
-                  itemBuilder: (context, i) {
-                    final ev = sorted[i];
-                    return Card(
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                      child: ListTile(
-                        title: Text(ev.descricao),
-                        subtitle: Text(ev.dataHora.toString()),
+            const SizedBox(height: 12),
+            Expanded(
+              child: ListView(
+                children: controller.listarEventos().map((e) {
+                  return Card(
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    child: ListTile(
+                      title: Text(e.descricao),
+                      subtitle: Text(
+                        '${e.dataHora.day}/${e.dataHora.month}/${e.dataHora.year} • ${e.dataHora.hour}:${e.dataHora.minute.toString().padLeft(2, '0')}',
+                        style: const TextStyle(color: Colors.grey),
                       ),
-                    );
-                  },
-                );
-              },
-            ),
-          )
-        ]),
+                    ),
+                  );
+                }).toList(),
+              ),
+            )
+          ],
+        ),
       ),
     );
   }

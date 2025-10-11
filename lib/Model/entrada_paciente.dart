@@ -1,15 +1,15 @@
-class Entrada_paciente {
+class EntradaPaciente {
   final int id;
-  final int idPaciente;
-  final DateTime criadoEm;
+  final int pacienteId;
   final String titulo;
   final String descricao;
+  final DateTime criadoEm;
 
-  Entrada_paciente({
+  EntradaPaciente({
     required this.id,
-    required this.idPaciente,
-    required this.criadoEm,
+    required this.pacienteId,
     required this.titulo,
     required this.descricao,
+    required this.criadoEm,
   });
 }

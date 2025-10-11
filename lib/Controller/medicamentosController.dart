@@ -1,4 +1,4 @@
-import 'package:meuapppdv/model/medicamentos.dart';
+import 'package:medshift/model/medicamentos.dart';
 import '../bancoDeDados/banco_de_dados_simulado.dart';
 import 'package:flutter/material.dart';
 

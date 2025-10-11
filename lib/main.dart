@@ -60,7 +60,7 @@
 
         routes: {
           '/pacientes': (context) => const PacientesView(),
-          '/prontuarios': (context) => const ProntuariosView(),
+          '/prontuario': (context) => const ProntuariosView(),
           '/medicamentos': (context) => MedicamentosView(), 
           '/anotacoes': (context) => AnotacoesView(),
           '/agenda': (context) => AgendaView(),

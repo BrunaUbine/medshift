@@ -1,40 +1,46 @@
-import 'package:meuapppdv/model/entrada_paciente.dart';
-import 'package:meuapppdv/bancoDeDados/banco_de_dados_simulado.dart';
 import 'package:flutter/material.dart';
+import 'package:medshift/bancoDeDados/banco_de_dados_simulado.dart';
+import 'package:medshift/model/entrada_paciente.dart';
 
 class ProntuarioController {
   final tituloCtl = TextEditingController();
   final descricaoCtl = TextEditingController();
 
+  /// Adiciona uma nova anotação ao prontuário do paciente
   void adicionarAnotacao(int idPaciente, VoidCallback atualizarUI) {
     if (tituloCtl.text.trim().isEmpty || descricaoCtl.text.trim().isEmpty) return;
 
+    // Gera novo ID incremental
     final id = BancoDeDadosSimulado.prontuarios.isEmpty
         ? 1
-        : BancoDeDadosSimulado.prontuarios.map((e) => e.id).reduce((a, b) => a > b ? a : b) + 1;
+        : BancoDeDadosSimulado.prontuarios
+                .map((e) => e.id)
+                .reduce((a, b) => a > b ? a : b) +
+            1;
 
-    final novo = Entrada_paciente(
+    final novaEntrada = EntradaPaciente(
       id: id,
-      idPaciente: idPaciente,
-      criadoEm: DateTime.now(),
+      pacienteId: idPaciente,
       titulo: tituloCtl.text.trim(),
       descricao: descricaoCtl.text.trim(),
+      criadoEm: DateTime.now(),
     );
 
-    BancoDeDadosSimulado.prontuarios.add(novo);
+    BancoDeDadosSimulado.prontuarios.add(novaEntrada);
     limparCampos();
     atualizarUI();
   }
 
-  List<Entrada_paciente> listarPorPaciente(int idPaciente) {
+  /// Lista as anotações do prontuário por paciente
+  List<EntradaPaciente> listarPorPaciente(int idPaciente) {
     final listaFiltrada = BancoDeDadosSimulado.prontuarios
-        .where((p) => p.idPaciente == idPaciente)
+        .where((p) => p.pacienteId == idPaciente)
         .toList();
     listaFiltrada.sort((a, b) => b.criadoEm.compareTo(a.criadoEm));
     return listaFiltrada;
   }
-  
 
+  /// Limpa os campos do formulário
   void limparCampos() {
     tituloCtl.clear();
     descricaoCtl.clear();
