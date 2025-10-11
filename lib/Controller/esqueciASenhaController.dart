@@ -8,10 +8,9 @@ class EsqueciASenhaController {
     String email = emailController.text;
     if (email.isEmpty || !email.contains('@')) return 'Email inválido.';
     try {
-      // Simulação do envio do link
       await Future.delayed(Duration(seconds: 2));
       // se sucesso:
-      return null; // sem erro
+      return null; 
     } catch (e) {
       return e.toString();
     } finally {
