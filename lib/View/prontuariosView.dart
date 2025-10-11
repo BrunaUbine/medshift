@@ -52,7 +52,6 @@ class _ProntuariosViewState extends State<ProntuariosView> {
                   ),
                   const SizedBox(height: 20),
 
-                  // Nenhum paciente selecionado ainda
                   if (pacienteSelecionado == null)
                     Expanded(
                       child: Center(
