@@ -19,7 +19,6 @@ class _CadastroViewState extends State<Cadastroview> {
     String? erro = await _controller.cadastro();
 
     if (erro == null) {
-      // Mostra mensagem de sucesso
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Cadastro realizado com sucesso!'),
@@ -37,7 +36,6 @@ class _CadastroViewState extends State<Cadastroview> {
         );
       }
     } else {
-      // Exibe o erro em um diálogo
       await Future.delayed(const Duration(milliseconds: 500));
       if (!mounted) return;
       showDialog(
@@ -82,21 +80,18 @@ class _CadastroViewState extends State<Cadastroview> {
             children: [
               SizedBox(height: screenHeight * 0.05),
 
-              // Nome
               TextField(
                 controller: _controller.nomeController,
                 decoration: const InputDecoration(labelText: 'Nome'),
               ),
               const SizedBox(height: 20),
 
-              // Email
               TextField(
                 controller: _controller.emailController,
                 decoration: const InputDecoration(labelText: 'Email'),
               ),
               const SizedBox(height: 20),
 
-              // Senha
               TextField(
                 controller: _controller.senhaController,
                 decoration: const InputDecoration(labelText: 'Senha'),
@@ -104,7 +99,6 @@ class _CadastroViewState extends State<Cadastroview> {
               ),
               const SizedBox(height: 20),
 
-              // Confirmação de Senha
               TextField(
                 controller: _controller.confirmarSenhaController,
                 decoration: const InputDecoration(labelText: 'Confirmação de senha'),
@@ -112,7 +106,6 @@ class _CadastroViewState extends State<Cadastroview> {
               ),
               const SizedBox(height: 20),
 
-              // Telefone
               TextField(
                 controller: _controller.telefoneController,
                 keyboardType: TextInputType.phone,
@@ -124,7 +117,6 @@ class _CadastroViewState extends State<Cadastroview> {
               ),
               const SizedBox(height: 20),
 
-              // Data de nascimento
               TextField(
                 controller: _controller.dtNascimentoController,
                 decoration: const InputDecoration(
@@ -134,7 +126,6 @@ class _CadastroViewState extends State<Cadastroview> {
               ),
               const SizedBox(height: 30),
 
-              // Botão concluir
               ValueListenableBuilder<bool>(
                 valueListenable: _controller.carregando,
                 builder: (_, carregando, __) {
