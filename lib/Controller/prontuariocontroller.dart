@@ -6,11 +6,10 @@ class ProntuarioController {
   final tituloCtl = TextEditingController();
   final descricaoCtl = TextEditingController();
 
-  /// Adiciona uma nova anotação ao prontuário do paciente
-  void adicionarAnotacao(int idPaciente, VoidCallback atualizarUI) {
+void adicionarAnotacao(int idPaciente, VoidCallback atualizarUI) {
     if (tituloCtl.text.trim().isEmpty || descricaoCtl.text.trim().isEmpty) return;
 
-    // Gera novo ID incremental
+   
     final id = BancoDeDadosSimulado.prontuarios.isEmpty
         ? 1
         : BancoDeDadosSimulado.prontuarios
@@ -31,7 +30,7 @@ class ProntuarioController {
     atualizarUI();
   }
 
-  /// Lista as anotações do prontuário por paciente
+
   List<EntradaPaciente> listarPorPaciente(int idPaciente) {
     final listaFiltrada = BancoDeDadosSimulado.prontuarios
         .where((p) => p.pacienteId == idPaciente)
@@ -40,7 +39,7 @@ class ProntuarioController {
     return listaFiltrada;
   }
 
-  /// Limpa os campos do formulário
+
   void limparCampos() {
     tituloCtl.clear();
     descricaoCtl.clear();
