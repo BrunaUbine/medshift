@@ -40,7 +40,7 @@ class SobreView extends StatelessWidget {
                 ),
                 SizedBox(height: 12),
                 Text(
-                  'Desenvolvido por: Bruna Luiza',
+                  'Desenvolvido por: Bruna Luiza Nunes Ubine',
                   style: TextStyle(fontWeight: FontWeight.bold),
                 ),
               ],

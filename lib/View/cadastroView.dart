@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:medshift/Controller/cadastrocontroller.dart';
 import 'package:flutter_multi_formatter/flutter_multi_formatter.dart';
-
+import 'package:medshift/View/loginview.dart';
 
 class Cadastroview extends StatefulWidget {
   const Cadastroview({super.key});
+
   @override
   _CadastroViewState createState() => _CadastroViewState();
 }
@@ -13,144 +14,155 @@ class _CadastroViewState extends State<Cadastroview> {
   final Cadastrocontroller _controller = Cadastrocontroller();
 
   void _handleCadastros() async {
-    _controller.carregando.value = true; // Ativa o loading
+    _controller.carregando.value = true;
 
     String? erro = await _controller.cadastro();
 
     if (erro == null) {
+      // Mostra mensagem de sucesso
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Cadastro realizado com sucesso')),
+        const SnackBar(
+          content: Text('Cadastro realizado com sucesso!'),
+          backgroundColor: Colors.green,
+          duration: Duration(seconds: 2),
+        ),
       );
+
+      // Aguarda 2 segundos e volta para tela de login
+      await Future.delayed(const Duration(seconds: 2));
+      if (mounted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const LoginView()),
+        );
+      }
     } else {
-      await Future.delayed(Duration(milliseconds: 500));
+      // Exibe o erro em um diálogo
+      await Future.delayed(const Duration(milliseconds: 500));
+      if (!mounted) return;
       showDialog(
         context: context,
         builder: (_) => AlertDialog(
-          title: Text('Erro no Cadastro'),
+          title: const Text('Erro no Cadastro'),
           content: Text(erro),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: Text('OK'),
+              child: const Text('OK'),
             )
           ],
         ),
       );
-      _controller.carregando.value = false;
     }
+
+    _controller.carregando.value = false;
   }
 
-@override
-Widget build(BuildContext context) {
-  final screenHeight = MediaQuery.of(context).size.height;
+  @override
+  Widget build(BuildContext context) {
+    final screenHeight = MediaQuery.of(context).size.height;
 
-  return Scaffold(
-    appBar: AppBar(
-      title: const Text(
-        'Cadastro',
-        style: TextStyle(
-          color: Colors.white,
-          fontWeight: FontWeight.bold,
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text(
+          'Cadastro',
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
         ),
+        backgroundColor: const Color(0xFF1976D2),
+        centerTitle: true,
       ),
-      backgroundColor: const Color(0xFF1976D2),
-      centerTitle: true,
-    ),
-    body: SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 20.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            SizedBox(height: screenHeight * 0.05), // espaçamento no topo
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 20.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              SizedBox(height: screenHeight * 0.05),
 
-            // Campo de Nome
-            TextField(
-              controller: _controller.nomeController,
-              decoration: const InputDecoration(labelText: 'Nome'),
-            ),
+              // Nome
+              TextField(
+                controller: _controller.nomeController,
+                decoration: const InputDecoration(labelText: 'Nome'),
+              ),
+              const SizedBox(height: 20),
 
-            SizedBox(height: 20),
+              // Email
+              TextField(
+                controller: _controller.emailController,
+                decoration: const InputDecoration(labelText: 'Email'),
+              ),
+              const SizedBox(height: 20),
 
-            // Campo de Email
-            TextField(
-              controller: _controller.emailController,
-              decoration: const InputDecoration(labelText: 'Email'),
-            ),
+              // Senha
+              TextField(
+                controller: _controller.senhaController,
+                decoration: const InputDecoration(labelText: 'Senha'),
+                obscureText: true,
+              ),
+              const SizedBox(height: 20),
 
-            SizedBox(height: 20),
+              // Confirmação de Senha
+              TextField(
+                controller: _controller.confirmarSenhaController,
+                decoration: const InputDecoration(labelText: 'Confirmação de senha'),
+                obscureText: true,
+              ),
+              const SizedBox(height: 20),
 
-            //Campo de Senha
-            TextField(
-              controller: _controller.senhaController,
-              decoration: const InputDecoration(labelText: 'Senha'),
-              obscureText: true,
-            ),
+              // Telefone
+              TextField(
+                controller: _controller.telefoneController,
+                keyboardType: TextInputType.phone,
+                inputFormatters: [PhoneInputFormatter()],
+                decoration: const InputDecoration(
+                  labelText: 'Telefone',
+                  hintText: '+55 (xx) xxxxx-xxxx',
+                ),
+              ),
+              const SizedBox(height: 20),
 
-            SizedBox(height: 20),
-            //Campo de Confirmação de Senha
+              // Data de nascimento
+              TextField(
+                controller: _controller.dtNascimentoController,
+                decoration: const InputDecoration(
+                  labelText: 'Data de nascimento',
+                  hintText: 'DD/MM/AAAA',
+                ),
+              ),
+              const SizedBox(height: 30),
 
-            TextField(
-              controller: _controller.confirmarSenhaController,
-              decoration: const InputDecoration(labelText: 'Confirmação de senha'),
-              obscureText: true,
-            ),
-              
-            SizedBox(height: 20),              
-
-            //Campo de telefone
-            TextField(
-              controller: _controller.telefoneController,
-              keyboardType: TextInputType.phone,
-              inputFormatters: [PhoneInputFormatter()],
-              decoration: const InputDecoration(
-                labelText: 'Telefone',
-                hintText: '+55 (xx) xxxxx-xxxx'),
-            ),
-
-            SizedBox(height: 20),
-
-            //Campo de Data de Nascimento
-            TextField(
-              controller: _controller.dtNascimentoController,
-              decoration: const InputDecoration(
-                labelText: 'Data de nascimento',
-                hintText: 'DD/MM/AAAA',
-                ),  
-            ),
-
-
-            // Botão Entrar com loading
-            ValueListenableBuilder<bool>(
-              valueListenable: _controller.carregando,
-              builder: (_, carregando, __) {
-                return carregando
-                    ? const CircularProgressIndicator()
-                    : ElevatedButton(
-                        onPressed: _handleCadastros,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF1976D2),
-                          foregroundColor: Colors.white,
-                          minimumSize: const Size(double.infinity, 50),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          textStyle: const TextStyle(
-                            fontSize: 16,
+              // Botão concluir
+              ValueListenableBuilder<bool>(
+                valueListenable: _controller.carregando,
+                builder: (_, carregando, __) {
+                  return carregando
+                      ? const CircularProgressIndicator()
+                      : ElevatedButton(
+                          onPressed: _handleCadastros,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF1976D2),
+                            foregroundColor: Colors.white,
+                            minimumSize: const Size(double.infinity, 50),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            textStyle: const TextStyle(
+                              fontSize: 16,
                               fontWeight: FontWeight.bold,
+                            ),
                           ),
-                        ),
-                        child: const Text('Concluir'),
-                      );
-              },
-            ),
-
-            const SizedBox(height: 20),
-          ],
+                          child: const Text('Concluir'),
+                        );
+                },
+              ),
+              const SizedBox(height: 20),
+            ],
+          ),
         ),
       ),
-    ),
-  );
+    );
+  }
 }
-}
-
