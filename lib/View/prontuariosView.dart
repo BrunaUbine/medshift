@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:medshift/Controller/prontuarioController.dart';
+import 'package:medshift/View/components/popup_menu.dart';
 import '../AppState.dart';
 import '../model/paciente.dart';
-import 'tela_compartilhadaView.dart';
 
 class ProntuariosView extends StatefulWidget {
   const ProntuariosView({super.key});
@@ -13,7 +13,7 @@ class ProntuariosView extends StatefulWidget {
 
 class _ProntuariosViewState extends State<ProntuariosView> {
   final controller = ProntuarioController();
-  int? pacienteSelecionado;
+  String? pacienteSelecionado;
 
   @override
   Widget build(BuildContext context) {

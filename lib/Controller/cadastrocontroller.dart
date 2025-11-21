@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:medshift/Model/usermodel.dart';
 import 'package:intl/intl.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Cadastrocontroller {
   final TextEditingController emailController = TextEditingController();
@@ -10,6 +12,8 @@ class Cadastrocontroller {
   final TextEditingController dtNascimentoController = TextEditingController();
   final TextEditingController confirmarSenhaController = TextEditingController();
   final ValueNotifier<bool> carregando = ValueNotifier(false);
+  final FirebaseAuth auth = FirebaseAuth.instance;
+  final FirebaseFirestore db = FirebaseFirestore.instance;
 
   Future<String?> cadastro() async {
     carregando.value = true;
@@ -29,26 +33,55 @@ class Cadastrocontroller {
     if (telefone.isEmpty || telefone.length < 8) return 'Telefone inválido.';
       
 
-    DateFormat formatoBR = DateFormat('dd/MM/yyyy');
-
-    DateTime ? dtnascimento;
+    DateTime? dtNascimento;
     try {
-      DateTime dtnascimento = formatoBR.parseStrict(dtNascimentoStr);
+      dtNascimento = DateFormat('dd/MM/yyyy').parseStrict(dtNascimentoStr);
+    } catch (e) {
+      return 'Data de nascimento inválida. Use o formato dd/MM/yyyy.';
+    }
 
-    UsuarioModel user = UsuarioModel(
-      nome: nome,
-      email: email,
-      senha: senha,
-      telefone: telefone,
-      dtNascimento: dtnascimento,
+    try {
+      final credencial = await auth.createUserWithEmailAndPassword(email: email, password: senha);
+      final uid = credencial.user!.uid;
+
+      UsuarioModel usuario = UsuarioModel(
+        nome: nome,
+        email: email,
+        senha: senha,
+        telefone: telefone,
+        dtNascimento: dtNascimento,
     );
+     await db.collection('usuarios').doc(uid).set({
+        'uid': uid,
+        'nome': usuario.nome,
+        'email': usuario.email,
+        'telefone': usuario.telefone,
+        'dtNascimento': usuario.dtNascimento.toIso8601String(),
+        'nomeLower': usuario.nome.toLowerCase(),
+        'criadoEm': FieldValue.serverTimestamp(),
+      });
 
-    
-    await Future.delayed(Duration(seconds: 2));
+      carregando.value = false;
+      return null;
 
-    return null; // sucesso
-  } catch (_) {
-    return 'Data de nascimento inválida. Use o formato dd/MM/yyyy.';
+
+    } on FirebaseAuthException catch (e) {
+      carregando.value = false;
+
+      switch (e.code) {
+          case 'email-already-in-use':
+            return 'Este e-mail já está em uso.';
+          case 'invalid-email':
+            return 'Formato de e-mail inválido.';
+          case 'weak-password':
+            return 'Senha muito fraca.';
+          default:
+            return 'Erro ao criar conta: ${e.message}';
+      }
+    } catch (e) {
+      carregando.value = false;
+      return 'Erro inesperado: $e';
+    }
   }
 }
-}
+    

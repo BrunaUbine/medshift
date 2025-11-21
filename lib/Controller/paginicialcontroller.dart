@@ -1,62 +1,73 @@
 import 'package:flutter/material.dart';
-
+import 'package:firebase_auth/firebase_auth.dart';
 
 class PagInicialController extends ChangeNotifier {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
   final List<String> funcionalidadeNames = [
     "Pacientes",
-    "Prontuário",
     "Agenda",
-    "Medicamentos",
     "Anotações",
+    "Chat",
     "Sobre",
+    "Sair",
   ];
 
-    final Map<String, IconData> funcionalidadeIcons = {
+  final Map<String, IconData> funcionalidadeIcons = {
     "Pacientes": Icons.people_alt,
-    "Prontuário": Icons.medical_services,
     "Agenda": Icons.calendar_month,
-    "Medicamentos": Icons.local_pharmacy,
     "Anotações": Icons.edit_note,
+    "Chat": Icons.chat_bubble_outline,
     "Sobre": Icons.info_outline,
+    "Sair": Icons.logout,
   };
-    List<String> get funcionalidades => funcionalidadeNames;
 
-  
-  IconData getIconFor(String funcionalidade) {
-    return funcionalidadeIcons[funcionalidade] ?? Icons.help_outline;
-  }
+  List<String> get funcionalidades => funcionalidadeNames;
 
-  void aoClicar(BuildContext context, String funcionalidade) {
-    String route = "";
+  IconData getIconFor(String f) =>
+      funcionalidadeIcons[f] ?? Icons.help_outline;
 
+  void aoClicar(BuildContext context, String funcionalidade) async {
     switch (funcionalidade) {
       case "Pacientes":
-        route = "/pacientes";
+        Navigator.pushNamed(context, "/pacientes");
         break;
-      case "Prontuário":
-        route = "/prontuarios";
-        break;
+
       case "Agenda":
-        route = "/agenda";
+        Navigator.pushNamed(context, "/agenda");
         break;
-      case "Medicamentos":
-        route = "/medicamentos";
-        break;
+
       case "Anotações":
-        route = "/anotacoes";
+        Navigator.pushNamed(context, "/anotacoes");
         break;
+
+      case "Chat":
+        Navigator.pushNamed(context, "/chat");
+        break;
+
       case "Sobre":
-        route = "/sobre";
+        Navigator.pushNamed(context, "/sobre");
         break;
+
+      case "Sair":
+        await logout(context);
+        break;
+
       default:
-
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Funcionalidade $funcionalidade não encontrada.')),
+          SnackBar(content: Text('Funcionalidade não encontrada: $funcionalidade')),
         );
-        return;
     }
+  }
 
-
-    Navigator.pushNamed(context, route);
+  Future<void> logout(BuildContext context) async {
+    try {
+      await _auth.signOut();
+      Navigator.pushNamedAndRemoveUntil(context, "/login", (_) => false);
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Erro ao sair: $e")),
+      );
+    }
   }
 }

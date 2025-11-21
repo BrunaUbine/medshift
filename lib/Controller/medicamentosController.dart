@@ -1,36 +1,60 @@
-import 'package:medshift/model/medicamentos.dart';
-import '../bancoDeDados/banco_de_dados_simulado.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-class MedicamentosController {
+class MedicamentosController extends ChangeNotifier {
   final nomeCtl = TextEditingController();
   final doseCtl = TextEditingController();
   final horarioCtl = TextEditingController();
   final obsCtl = TextEditingController();
 
-  void adicionarMedicamento(int idPaciente, VoidCallback atualizarUI) {
-    if (nomeCtl.text.trim().isEmpty) return;
+  final FirebaseFirestore db = FirebaseFirestore.instance;
+  final FirebaseAuth auth = FirebaseAuth.instance;
 
-    final id = BancoDeDadosSimulado.medicamentos.isEmpty
-        ? 1
-        : BancoDeDadosSimulado.medicamentos.map((e) => e.id).reduce((a, b) => a > b ? a : b) + 1;
+  Future<String?> adicionarMedicamento(String pacienteId) async {
+    try {
+      if (nomeCtl.text.trim().isEmpty) {
+        return "O nome é obrigatório.";
+      }
 
-    final novo = Medicamento(
-      id: id,
-      idPaciente: idPaciente,
-      nome: nomeCtl.text.trim(),
-      dose: doseCtl.text.trim(),
-      horario: horarioCtl.text.trim(),
-      observacao: obsCtl.text.trim(),
-    );
+      final uid = auth.currentUser!.uid;
 
-    BancoDeDadosSimulado.medicamentos.add(novo);
-    limparCampos();
-    atualizarUI();
+      await db.collection("medicamentos").add({
+        "pacienteId": pacienteId,
+        "nome": nomeCtl.text.trim(),
+        "dose": doseCtl.text.trim(),
+        "horario": horarioCtl.text.trim(),
+        "observacao": obsCtl.text.trim(),
+        "uidUsuario": uid,
+        "criadoEm": FieldValue.serverTimestamp(),
+      });
+
+      limparCampos();
+      return null;
+
+    } catch (e) {
+      return "Erro ao adicionar medicamento: $e";
+    }
   }
 
-  List<Medicamento> listarTodos() {
-    return List.from(BancoDeDadosSimulado.medicamentos.reversed);
+  Stream<QuerySnapshot> listarPorPacienteStream(String pacienteId) {
+    final uid = auth.currentUser!.uid;
+
+    return db
+        .collection("medicamentos")
+        .where("uidUsuario", isEqualTo: uid)
+        .where("pacienteId", isEqualTo: pacienteId)
+        .orderBy("criadoEm", descending: true)
+        .snapshots();
+  }
+
+  Future<String?> removerMedicamento(String id) async {
+    try {
+      await db.collection("medicamentos").doc(id).delete();
+      return null;
+    } catch (e) {
+      return "Erro ao remover medicamento: $e";
+    }
   }
 
   void limparCampos() {

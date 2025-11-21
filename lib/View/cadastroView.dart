@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:medshift/Controller/cadastrocontroller.dart';
 import 'package:flutter_multi_formatter/flutter_multi_formatter.dart';
+import 'package:medshift/Controller/cadastrocontroller.dart';
 import 'package:medshift/View/loginview.dart';
 
 class Cadastroview extends StatefulWidget {
@@ -13,10 +13,14 @@ class Cadastroview extends StatefulWidget {
 class _CadastroViewState extends State<Cadastroview> {
   final Cadastrocontroller _controller = Cadastrocontroller();
 
-  void _handleCadastros() async {
+  Future<void> _handleCadastro() async {
     _controller.carregando.value = true;
 
-    String? erro = await _controller.cadastro();
+    final erro = await _controller.cadastro();
+
+    _controller.carregando.value = false;
+
+    if (!mounted) return;
 
     if (erro == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -27,17 +31,15 @@ class _CadastroViewState extends State<Cadastroview> {
         ),
       );
 
-      // Aguarda 2 segundos e volta para tela de login
       await Future.delayed(const Duration(seconds: 2));
-      if (mounted) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => const LoginView()),
-        );
-      }
-    } else {
-      await Future.delayed(const Duration(milliseconds: 500));
+
       if (!mounted) return;
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const LoginView()),
+      );
+    } else {
       showDialog(
         context: context,
         builder: (_) => AlertDialog(
@@ -52,8 +54,6 @@ class _CadastroViewState extends State<Cadastroview> {
         ),
       );
     }
-
-    _controller.carregando.value = false;
   }
 
   @override
@@ -89,6 +89,7 @@ class _CadastroViewState extends State<Cadastroview> {
               TextField(
                 controller: _controller.emailController,
                 decoration: const InputDecoration(labelText: 'Email'),
+                keyboardType: TextInputType.emailAddress,
               ),
               const SizedBox(height: 20),
 
@@ -123,6 +124,7 @@ class _CadastroViewState extends State<Cadastroview> {
                   labelText: 'Data de nascimento',
                   hintText: 'DD/MM/AAAA',
                 ),
+                keyboardType: TextInputType.number,
               ),
               const SizedBox(height: 30),
 
@@ -132,7 +134,7 @@ class _CadastroViewState extends State<Cadastroview> {
                   return carregando
                       ? const CircularProgressIndicator()
                       : ElevatedButton(
-                          onPressed: _handleCadastros,
+                          onPressed: _handleCadastro,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFF1976D2),
                             foregroundColor: Colors.white,

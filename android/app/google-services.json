@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "54308082917",
+    "project_id": "medshi",
+    "storage_bucket": "medshi.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:54308082917:android:47a379e94ea70e2971700c",
+        "android_client_info": {
+          "package_name": "com.example.medshift"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA6awIWonWu6eZX2NJWP_D4fOvLaKjxLFI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

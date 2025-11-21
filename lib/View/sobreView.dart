@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:medshift/View/tela_compartilhadaView.dart';
-
+import 'package:medshift/View/components/popup_menu.dart';
 
 class SobreView extends StatelessWidget {
   const SobreView({super.key});
@@ -9,39 +8,82 @@ class SobreView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Sobre o App'),
+        title: const Text(
+          'Sobre o App',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        backgroundColor: const Color(0xFF1976D2),
         actions: [
-          buildPopupMenu(context), 
+          buildPopupMenu(context),
         ],
       ),
+
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Card(
-          elevation: 3,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          elevation: 4,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
           child: Padding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(20),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
-                Text(
+              children: [
+                const Text(
                   'MedShift',
-                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF1976D2),
+                  ),
                 ),
-                SizedBox(height: 12),
-                Text(
-                  'O MedShift é um aplicativo desenvolvido para auxiliar profissionais de saúde '
-                  'no gerenciamento de pacientes, prontuários, medicamentos e anotações de forma prática e segura.',
+
+                const SizedBox(height: 12),
+
+                const Text(
+                  'O MedShift é um aplicativo desenvolvido para auxiliar '
+                  'profissionais de saúde no gerenciamento de pacientes, '
+                  'prontuários, medicamentos, anotações e comunicação eficiente '
+                  'entre equipes durante a troca de turnos.',
+                  style: TextStyle(fontSize: 15),
                 ),
-                SizedBox(height: 12),
-                Text(
+
+                const SizedBox(height: 20),
+
+                const Text(
                   'Versão: 1.0.0',
-                  style: TextStyle(color: Colors.grey),
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey,
+                  ),
                 ),
-                SizedBox(height: 12),
-                Text(
-                  'Desenvolvido por: Bruna Luiza Nunes Ubine',
-                  style: TextStyle(fontWeight: FontWeight.bold),
+
+                const SizedBox(height: 20),
+
+                const Text(
+                  'Desenvolvido por:',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
+
+                const SizedBox(height: 6),
+
+                const Text(
+                  'Bruna Luiza Nunes Ubine',
+                  style: TextStyle(
+                    fontSize: 15,
+                  ),
+                ),
+
+                const SizedBox(height: 20),
+
+                const Text(
+                  'Projeto desenvolvido como parte do Trabalho de Conclusão de Curso '
+                  'em Análise e Desenvolvimento de Sistemas.',
+                  style: TextStyle(fontSize: 14),
                 ),
               ],
             ),

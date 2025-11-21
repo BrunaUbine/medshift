@@ -4,33 +4,42 @@ import 'package:medshift/View/loginview.dart';
 
 class EsqueciSenhaView extends StatefulWidget {
   const EsqueciSenhaView({super.key});
-   @override
+
+  @override
   _EsqueciasenhaViewState createState() => _EsqueciasenhaViewState();
 }
-
 
 class _EsqueciasenhaViewState extends State<EsqueciSenhaView> {
   final EsqueciASenhaController _controller = EsqueciASenhaController();
 
-void _handleEsqueciSenha() async {
-    _controller.carregando.value = true;
+  Future<void> _handleEsqueciSenha() async {
+    final erro = await _controller.esqueciasenha();
 
-    String email = _controller.emailController.text.trim();
-    String? erro = await _controller.esqueciasenha();
-
-    _controller.carregando.value = false;
+    if (!mounted) return;
 
     if (erro == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Link de redefinição enviado para o e-mail')),
+        const SnackBar(
+          content: Text('Link de redefinição enviado para o e-mail.'),
+          backgroundColor: Colors.green,
+        ),
       );
+
+      await Future.delayed(const Duration(seconds: 2));
+
+      if (!mounted) return;
+
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (_) => const LoginView()),
       );
+
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erro: $erro')),
+        SnackBar(
+          content: Text(erro),
+          backgroundColor: Colors.red,
+        ),
       );
     }
   }
@@ -38,7 +47,11 @@ void _handleEsqueciSenha() async {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Esqueci a senha')),
+      appBar: AppBar(
+        title: const Text('Esqueci a Senha'),
+        backgroundColor: const Color(0xFF1976D2),
+        centerTitle: true,
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -48,7 +61,9 @@ void _handleEsqueciSenha() async {
               'Informe o e-mail cadastrado',
               style: TextStyle(fontSize: 16),
             ),
+
             const SizedBox(height: 16),
+
             TextField(
               controller: _controller.emailController,
               keyboardType: TextInputType.emailAddress,
@@ -56,18 +71,30 @@ void _handleEsqueciSenha() async {
                 labelText: 'E-mail',
                 border: OutlineInputBorder(),
               ),
-              textInputAction: TextInputAction.done, // muda o botão do teclado
-              onSubmitted: (_) => _handleEsqueciSenha(),  // aqui chama o login ao pressionar "Enter"
+              textInputAction: TextInputAction.done,
+              onSubmitted: (_) => _handleEsqueciSenha(),
             ),
+
             const SizedBox(height: 20),
+
             ValueListenableBuilder<bool>(
               valueListenable: _controller.carregando,
-              builder: (context, carregando, _) {
+              builder: (_, carregando, __) {
                 return ElevatedButton(
                   onPressed: carregando ? null : _handleEsqueciSenha,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF1976D2),
+                    minimumSize: const Size(double.infinity, 48),
+                  ),
                   child: carregando
-                      ? const CircularProgressIndicator(color: Colors.white)
-                      : const Text('Enviar link de redefinição'),
+                      ? const CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 2,
+                        )
+                      : const Text(
+                          'Enviar link de redefinição',
+                          style: TextStyle(fontSize: 16),
+                        ),
                 );
               },
             ),

@@ -4,43 +4,41 @@ import 'package:medshift/View/cadastroview.dart';
 import 'package:medshift/View/EsqueciASenhaView.dart';
 import 'package:medshift/View/paginicialview.dart';
 
-
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
-   @override
+
+  @override
   _LoginViewState createState() => _LoginViewState();
 }
 
 class _LoginViewState extends State<LoginView> {
   final LoginController _controller = LoginController();
+  bool _carregando = false;
 
-  void _handleLogin() async {
-    bool success = await _controller.login();
-    if(success){
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => const PaginaInicialView(),
-          ),
-          );
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Login realizado com sucesso')),
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Email ou senha inválidos')),
-      );
-    }
+Future<void> _handleLogin() async {
+  setState(() => _carregando = true);
+
+  final erro = await _controller.login(context);
+
+  setState(() => _carregando = false);
+
+  if (erro == null) {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (_) => const PaginaInicialView()),
+    );
+  } else {
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(erro)));
   }
-  void _handleEsqueciaSenha() {
+}
+  
+  void _handleEsqueciSenha() {
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (context) => const EsqueciSenhaView(),
-      ),
+      MaterialPageRoute(builder: (_) => const EsqueciSenhaView()),
     );
   }
-  
 
   @override
   Widget build(BuildContext context) {
@@ -49,7 +47,7 @@ class _LoginViewState extends State<LoginView> {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'Medshift',
+          'MedShift',
           style: TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.bold,
@@ -62,87 +60,81 @@ class _LoginViewState extends State<LoginView> {
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 20.0),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              SizedBox(height: screenHeight * 0.05), // espaçamento no topo
+              SizedBox(height: screenHeight * 0.05),
 
-              // Logo aumentada
+
               SizedBox(
                 height: 200,
                 child: Image.asset('assets/images/logo.png'),
               ),
 
-              SizedBox(height: 40),
+              const SizedBox(height: 40),
 
-              // Campo de Email
+
               TextField(
-                controller: _controller.emailController,
-                decoration: const InputDecoration(labelText: 'Email'),
+                controller: _controller.txtEmail,
+                decoration: const InputDecoration(
+                  labelText: 'Email',
+                  prefixIcon: Icon(Icons.email_outlined),
+                  ),
+                  keyboardType: TextInputType.emailAddress,
               ),
+              const SizedBox(height: 20),
 
-              SizedBox(height: 20),
-
-              // Campo de Senha
               TextField(
-                controller: _controller.senhaController,
-                decoration: const InputDecoration(labelText: 'Senha'),
+                controller: _controller.txtSenha,
+                decoration: const InputDecoration(
+                  labelText: 'Senha',
+                  prefixIcon: Icon(Icons.lock_outline),
+                  ),
                 obscureText: true,
-                onSubmitted: (_) => _handleLogin(), // aqui chama o login ao pressionar "Enter"
+                onSubmitted: (_) => _handleLogin(),
               ),
 
               Align(
                 alignment: Alignment.centerRight,
                 child: TextButton(
-                  onPressed: _handleEsqueciaSenha,
+                  onPressed: _handleEsqueciSenha,
                   child: const Text('Esqueci minha senha'),
                 ),
               ),
 
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
 
-              // Botão Entrar com loading
-              ValueListenableBuilder<bool>(
-                valueListenable: _controller.carregando,
-                builder: (_, carregando, __) {
-                  return carregando
-                      ? const CircularProgressIndicator()
-                      : ElevatedButton(
-                          onPressed: _handleLogin,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF1976D2),
-                            foregroundColor: Colors.white,
-                            minimumSize: const Size(double.infinity, 50),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            textStyle: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          child: const Text('Entrar'),
-                        );
-                },
-              ),
+              _carregando
+                  ? const CircularProgressIndicator()
+                  : ElevatedButton(
+                      onPressed: _handleLogin,
+                      style: ElevatedButton.styleFrom(
+                        minimumSize: const Size(double.infinity, 50),
+                      ),
+                      child: const Text(
+                        'Entrar',
+                        style: TextStyle(fontSize: 16),
+                    ),
+                  ),
 
               const SizedBox(height: 20),
 
-              // Botão Cadastro
+              
               OutlinedButton(
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const Cadastroview()),
+                    MaterialPageRoute(builder: (_) => const Cadastroview()),
                   );
                 },
                 style: OutlinedButton.styleFrom(
                   side: const BorderSide(color: Color(0xFF1976D2)),
-                  foregroundColor: Color(0xFF1976D2),
+                  foregroundColor: const Color(0xFF1976D2),
                   minimumSize: const Size(double.infinity, 50),
                 ),
-                child: const Text('Cadastrar'),
+                child: const Text(
+                  'Cadastrar',
+                  style: TextStyle(fontSize: 16),
+                ),
               ),
-
             ],
           ),
         ),
@@ -150,4 +142,3 @@ class _LoginViewState extends State<LoginView> {
     );
   }
 }
-

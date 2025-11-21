@@ -1,33 +1,55 @@
 import 'package:flutter/material.dart';
-import 'package:medshift/Model/usermodel.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:stream_chat_flutter/stream_chat_flutter.dart';
+import '../services/stream_service.dart';
 
+class LoginController extends ChangeNotifier {
+  final txtEmail = TextEditingController();
+  final txtSenha = TextEditingController();
+  final FirebaseAuth auth = FirebaseAuth.instance;
 
-class LoginController {
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController senhaController = TextEditingController();
-  final ValueNotifier<bool> carregando = ValueNotifier(false);
+  bool carregando = false;
+  void setLoading(bool v) {
+    carregando = v;
+    notifyListeners();
+  }
 
-  Future<bool> login() async {
-    carregando.value = true;
-    
-    String email = emailController.text;
-    String senha = senhaController.text;
+  Future<void> conectarStream(User user) async {
+    final client = StreamService.client;
 
-    UsuarioModel user = UsuarioModel(
-        nome: '',
-        email: email,
-        senha: senha,
-        telefone: '',
-        dtNascimento: DateTime(2000, 1, 1),
+    await client.connectUser(
+      User(
+        id: user.uid,
+        extraData: {
+          "name": user.displayName ?? user.email!,
+        },
+      ),
+      client.devToken(user.uid).rawValue,
     );
+  }
 
-    await Future.delayed(Duration(seconds: 2)); // Simula uma requisição
+  Future<String?> login(BuildContext context) async {
+    try {
+      setLoading(true);
 
-    carregando.value = false;
+      final cred = await auth.signInWithEmailAndPassword(
+        email: txtEmail.text.trim(),
+        password: txtSenha.text.trim(),
+      );
 
-    if (user.emailvalido() && user.senhavalida()) {
-      return true; // Login bem-sucedido
+      final user = cred.user!;
+      await conectarStream(user);
+
+      setLoading(false);
+      return null;
+    } on FirebaseAuthException catch (e) {
+      setLoading(false);
+      return e.message;
     }
-    return false;
+  }
+
+  void limpar() {
+    txtEmail.clear();
+    txtSenha.clear();
   }
 }

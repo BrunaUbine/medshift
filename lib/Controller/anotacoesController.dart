@@ -1,29 +1,64 @@
-import '../bancoDeDados/banco_de_dados_simulado.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../model/anotacoes.dart';
 import 'package:flutter/material.dart';
 
-class AnotacoesController {
+class AnotacoesController extends ChangeNotifier{
   final textoCtl = TextEditingController();
+  final FirebaseFirestore db = FirebaseFirestore.instance;
+  final FirebaseAuth auth = FirebaseAuth.instance;
 
-  void addAnotacao(VoidCallback atualizarUI) {
-    if (textoCtl.text.trim().isEmpty) return;
+  Future<String?> addAnotacao() async {
+    try {
+      final texto = textoCtl.text.trim();
+      if (texto.isEmpty) return "A anotação não pode ser vazia.";
 
-    final id = BancoDeDadosSimulado.anotacoes.isEmpty
-        ? 1
-        : BancoDeDadosSimulado.anotacoes.map((e) => e.id).reduce((a, b) => a > b ? a : b) + 1;
+      final uid = auth.currentUser!.uid;
 
-    final nova = Anotacao(
-      id: id,
-      criadoEm: DateTime.now(),
-      texto: textoCtl.text.trim(),
-    );
+      await db.collection("anotacoes").add({
+        "texto": texto,
+        "uidUsuario": uid,
+        "criadoEm": FieldValue.serverTimestamp(),
+      });
+      textoCtl.clear();
+      notifyListeners();
+      return null; // sucesso
 
-    BancoDeDadosSimulado.anotacoes.add(nova);
-    textoCtl.clear();
-    atualizarUI();
+    } catch (e) {
+      return "Erro ao salvar anotação: $e";
+    }
   }
 
-  List<Anotacao> listarAnotacoes() {
-    return List.from(BancoDeDadosSimulado.anotacoes.reversed);
+  Stream<QuerySnapshot> listarAnotacoesStream() {
+    final uid = auth.currentUser!.uid;
+
+    return db
+        .collection("anotacoes")
+        .where("uidUsuario", isEqualTo: uid)
+        .orderBy("criadoEm", descending: true)
+        .snapshots();
+  }
+
+ Future<List<Anotacao>> listarAnotacoes() async {
+    final uid = auth.currentUser!.uid;
+
+    final snap = await db
+        .collection("anotacoes")
+        .where("uidUsuario", isEqualTo: uid)
+        .orderBy("criadoEm", descending: true)
+        .get();
+
+    return snap.docs.map((doc) {
+      final data = doc.data();
+
+      return Anotacao(
+        id: doc.id.hashCode,
+        texto: data["texto"],
+        criadoEm: (data["criadoEm"] as Timestamp?)?.toDate() ?? DateTime.now(),
+      );
+    }).toList();
+  }
+ void limparCampos() {
+    textoCtl.clear();
   }
 }

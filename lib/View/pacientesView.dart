@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:medshift/Controller/pacientesController.dart';
-import '../bancoDeDados/banco_de_dados_simulado.dart';
 import 'package:medshift/View/tela_compartilhadaView.dart';
+import 'package:provider/provider.dart';
 
 class PacientesView extends StatefulWidget {
   const PacientesView({super.key});
@@ -11,85 +11,106 @@ class PacientesView extends StatefulWidget {
 }
 
 class _PacientesViewState extends State<PacientesView> {
-  final controller = PacientesController();
+  final formKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
+    final controller = Provider.of<PacientesController>(context);
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Cadastro de Pacientes'),
-        actions: [
-          buildPopupMenu(context),
-        ],
+        title: const Text('Pacientes'),
+        backgroundColor: const Color(0xFF1976D2),
       ),
+
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // 🩺 Card de cadastro
             Card(
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               elevation: 4,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    const Text(
-                      'Cadastrar Paciente',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18,
-                        color: Color(0xFF1976D2),
+                padding: const EdgeInsets.all(16),
+                child: Form(
+                  key: formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      const Text(
+                        'Cadastrar Paciente',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                          color: Color(0xFF1976D2),
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 16),
-                    TextField(
-                      controller: controller.nomeCtl,
-                      decoration: const InputDecoration(
-                        labelText: 'Nome',
-                        prefixIcon: Icon(Icons.person_outline),
+                      const SizedBox(height: 16),
+
+                      TextFormField(
+                        controller: controller.nomeCtl,
+                        decoration: const InputDecoration(
+                          labelText: 'Nome',
+                          prefixIcon: Icon(Icons.person_outline),
+                        ),
+                        validator: (v) =>
+                            v == null || v.trim().isEmpty ? "Informe o nome" : null,
                       ),
-                    ),
-                    const SizedBox(height: 12),
-                    TextField(
-                      controller: controller.telefoneCtl,
-                      keyboardType: TextInputType.phone,
-                      decoration: const InputDecoration(
-                        labelText: 'Telefone',
-                        prefixIcon: Icon(Icons.phone_outlined),
+
+                      const SizedBox(height: 12),
+
+                      TextFormField(
+                        controller: controller.telefoneCtl,
+                        decoration: const InputDecoration(
+                          labelText: 'Telefone',
+                          prefixIcon: Icon(Icons.phone_outlined),
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 12),
-                    TextField(
-                      controller: controller.acompanhanteCtl,
-                      decoration: const InputDecoration(
-                        labelText: 'Acompanhante',
-                        prefixIcon: Icon(Icons.people_alt_outlined),
+
+                      const SizedBox(height: 12),
+
+                      TextFormField(
+                        controller: controller.acompanhanteCtl,
+                        decoration: const InputDecoration(
+                          labelText: 'Acompanhante',
+                          prefixIcon: Icon(Icons.people_alt_outlined),
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 20),
-                    Center(
-                      child: ElevatedButton.icon(
-                        icon: const Icon(Icons.save_alt),
+
+                      const SizedBox(height: 20),
+
+                      ElevatedButton.icon(
+                        icon: const Icon(Icons.save),
                         label: const Text(
                           'Salvar Paciente',
                           style: TextStyle(fontWeight: FontWeight.bold),
                         ),
-                        onPressed: () => setState(() {
-                          controller.addPaciente(() => setState(() {}));
-                        }),
                         style: ElevatedButton.styleFrom(
                           minimumSize: const Size(double.infinity, 50),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
+                          backgroundColor: const Color(0xFF1976D2),
                         ),
+                        onPressed: () async {
+                          if (formKey.currentState!.validate()) {
+                            final erro = await controller.addPaciente();
+                            if (erro != null && mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text(erro)),
+                              );
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Paciente cadastrado!'),
+                                  backgroundColor: Colors.green,
+                                ),
+                              );
+                            }
+                          }
+                        },
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -98,43 +119,85 @@ class _PacientesViewState extends State<PacientesView> {
             const Divider(thickness: 1.2),
             const SizedBox(height: 12),
 
-            // 👥 Lista de pacientes
             const Text(
               'Pacientes Cadastrados',
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
             ),
             const SizedBox(height: 10),
 
-            if (BancoDeDadosSimulado.pacientes.isEmpty)
-              const Center(
-                child: Padding(
-                  padding: EdgeInsets.symmetric(vertical: 30),
-                  child: Text(
-                    'Nenhum paciente cadastrado ainda.',
-                    style: TextStyle(color: Colors.grey),
-                  ),
-                ),
-              )
-            else
-              Column(
-                children: BancoDeDadosSimulado.pacientes.map((p) {
-                  return Card(
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    margin: const EdgeInsets.symmetric(vertical: 6),
-                    child: ListTile(
-                      leading: const Icon(Icons.person, color: Color(0xFF1976D2)),
-                      title: Text(p.nome, style: const TextStyle(fontWeight: FontWeight.w600)),
-                      subtitle: Text('Acompanhante: ${p.acompanhante.isEmpty ? '-' : p.acompanhante}'),
-                      trailing: IconButton(
-                        icon: const Icon(Icons.delete_outline, color: Colors.red),
-                        onPressed: () => setState(() {
-                          controller.removerPaciente(p.id, () => setState(() {}));
-                        }),
+            StreamBuilder(
+              stream: controller.listarPacientesStream(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 40),
+                    child: Center(child: CircularProgressIndicator()),
+                  );
+                }
+
+                if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                  return const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 40),
+                    child: Center(
+                      child: Text(
+                        "Nenhum paciente cadastrado.",
+                        style: TextStyle(color: Colors.grey),
                       ),
                     ),
                   );
-                }).toList(),
-              ),
+                }
+
+                final docs = snapshot.data!.docs;
+
+                return Column(
+                  children: docs.map((doc) {
+                    final data = doc.data() as Map<String, dynamic>;
+
+                    return Card(
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12)),
+                      margin: const EdgeInsets.symmetric(vertical: 6),
+                      child: ListTile(
+                        leading: const Icon(Icons.person, color: Color(0xFF1976D2)),
+
+                        title: Text(
+                          data["nome"],
+                          style: const TextStyle(fontWeight: FontWeight.w600),
+                        ),
+
+                        subtitle: Text(
+                          'Acompanhante: ${data["acompanhante"]?.isEmpty ?? true ? "-" : data["acompanhante"]}',
+                        ),
+
+                        trailing: IconButton(
+                          icon: const Icon(Icons.delete_outline, color: Colors.red),
+                          onPressed: () async {
+                            final erro = await controller.removerPaciente(doc.id);
+                            if (erro != null && mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text(erro)),
+                              );
+                            }
+                          },
+                        ),
+
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => TelaCompartilhadaView(
+                                pacienteId: doc.id,          
+                                pacienteNome: data["nome"],
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    );
+                  }).toList(),
+                );
+              },
+            ),
           ],
         ),
       ),

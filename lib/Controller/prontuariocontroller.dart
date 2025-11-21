@@ -1,44 +1,60 @@
 import 'package:flutter/material.dart';
-import 'package:medshift/bancoDeDados/banco_de_dados_simulado.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:medshift/model/entrada_paciente.dart';
 
-class ProntuarioController {
+class ProntuarioController extends ChangeNotifier {
   final tituloCtl = TextEditingController();
   final descricaoCtl = TextEditingController();
+  final FirebaseFirestore db = FirebaseFirestore.instance;
+  final FirebaseAuth auth = FirebaseAuth.instance;
 
-void adicionarAnotacao(int idPaciente, VoidCallback atualizarUI) {
-    if (tituloCtl.text.trim().isEmpty || descricaoCtl.text.trim().isEmpty) return;
+  Future<String?> adicionarAnotacao(String pacienteId) async {
+    try {
+      final uid = auth.currentUser!.uid;
 
-   
-    final id = BancoDeDadosSimulado.prontuarios.isEmpty
-        ? 1
-        : BancoDeDadosSimulado.prontuarios
-                .map((e) => e.id)
-                .reduce((a, b) => a > b ? a : b) +
-            1;
+      final titulo = tituloCtl.text.trim();
+      final descricao = descricaoCtl.text.trim();
 
-    final novaEntrada = EntradaPaciente(
-      id: id,
-      pacienteId: idPaciente,
-      titulo: tituloCtl.text.trim(),
-      descricao: descricaoCtl.text.trim(),
-      criadoEm: DateTime.now(),
-    );
+      if (titulo.isEmpty || descricao.isEmpty) {
+        return "Preencha título e descrição.";
+      }
 
-    BancoDeDadosSimulado.prontuarios.add(novaEntrada);
-    limparCampos();
-    atualizarUI();
+      await db.collection("prontuarios").add({
+        "pacienteId": pacienteId,
+        "titulo": titulo,
+        "descricao": descricao,
+        "uidUsuario": uid,
+        "criadoEm": FieldValue.serverTimestamp(),
+      });
+
+      limparCampos();
+      return null;
+
+    } catch (e) {
+      return "Erro ao adicionar anotação: $e";
+    }
   }
 
+  Stream<QuerySnapshot> listarPorPacienteStream(String pacienteId) {
+    final uid = auth.currentUser!.uid;
 
-  List<EntradaPaciente> listarPorPaciente(int idPaciente) {
-    final listaFiltrada = BancoDeDadosSimulado.prontuarios
-        .where((p) => p.pacienteId == idPaciente)
-        .toList();
-    listaFiltrada.sort((a, b) => b.criadoEm.compareTo(a.criadoEm));
-    return listaFiltrada;
+    return db
+        .collection("prontuarios")
+        .where("uidUsuario", isEqualTo: uid)
+        .where("pacienteId", isEqualTo: pacienteId)
+        .orderBy("criadoEm", descending: true)
+        .snapshots();
   }
 
+  Future<String?> removerAnotacao(String docId) async {
+    try {
+      await db.collection("prontuarios").doc(docId).delete();
+      return null;
+    } catch (e) {
+      return "Erro ao remover anotação: $e";
+    }
+  }
 
   void limparCampos() {
     tituloCtl.clear();

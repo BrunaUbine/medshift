@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:medshift/Controller/agendaController.dart';
-import 'package:medshift/View/tela_compartilhadaView.dart';
-
+import 'package:provider/provider.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:medshift/View/components/popup_menu.dart';
 class AgendaView extends StatefulWidget {
   const AgendaView({super.key});
 
@@ -10,79 +11,146 @@ class AgendaView extends StatefulWidget {
 }
 
 class _AgendaViewState extends State<AgendaView> {
-  final controller = AgendaController();
-
   @override
   Widget build(BuildContext context) {
+    final controller = Provider.of<AgendaController>(context);
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Agenda'),
-        actions: [
-          buildPopupMenu(context), 
-        ],
+        title: const Text("Agenda"),
+        actions: [buildPopupMenu(context)],
+        backgroundColor: const Color(0xFF1976D2),
       ),
+
       body: Padding(
         padding: const EdgeInsets.all(12),
         child: Column(
           children: [
             Card(
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               elevation: 3,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
               child: Padding(
                 padding: const EdgeInsets.all(12),
                 child: Column(
                   children: [
-                    const Text('Novo Compromisso', style: TextStyle(fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 8),
-                    TextFormField(
-                      controller: controller.descCtl,
-                      decoration: const InputDecoration(labelText: 'Descrição'),
+                    const Text(
+                      "Novo Compromisso",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF1976D2),
+                      ),
                     ),
                     const SizedBox(height: 8),
+
+
+                    TextFormField(
+                      controller: controller.descCtl,
+                      decoration: const InputDecoration(
+                        labelText: "Descrição",
+                      ),
+                    ),
+
+                    const SizedBox(height: 8),
+
                     Row(
                       children: [
                         Expanded(
                           child: Text(
                             controller.dataSelecionada == null
-                                ? 'Nenhuma data selecionada'
-                                : '${controller.dataSelecionada!.day}/${controller.dataSelecionada!.month}/${controller.dataSelecionada!.year} - '
-                                  '${controller.dataSelecionada!.hour.toString().padLeft(2, '0')}:${controller.dataSelecionada!.minute.toString().padLeft(2, '0')}',
+                                ? "Nenhuma data selecionada"
+                                : "${controller.dataSelecionada!.day.toString().padLeft(2, '0')}/"
+                                  "${controller.dataSelecionada!.month.toString().padLeft(2, '0')}/"
+                                  "${controller.dataSelecionada!.year}  "
+                                  "${controller.dataSelecionada!.hour.toString().padLeft(2, '0')}:"
+                                  "${controller.dataSelecionada!.minute.toString().padLeft(2, '0')}",
                           ),
                         ),
                         IconButton(
                           icon: const Icon(Icons.calendar_today, color: Color(0xFF1976D2)),
-                          onPressed: () => controller.selecionarData(context, () => setState(() {})),
+                          onPressed: () => controller.selecionarData(context),
                         ),
                       ],
                     ),
+
                     const SizedBox(height: 12),
+
                     ElevatedButton(
-                      onPressed: () => setState(() {
-                        controller.adicionarEvento(() => setState(() {}));
-                      }),
-                      child: const Text('Salvar Evento'),
+                      onPressed: () async {
+                        final erro = await controller.adicionarEvento();
+
+                        if (erro != null && mounted) {
+                          ScaffoldMessenger.of(context)
+                              .showSnackBar(SnackBar(content: Text(erro)));
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF1976D2),
+                        minimumSize: const Size(double.infinity, 45),
+                      ),
+                      child: const Text("Salvar"),
                     ),
                   ],
                 ),
               ),
             ),
+
             const SizedBox(height: 12),
+
             Expanded(
-              child: ListView(
-                children: controller.listarEventos().map((e) {
-                  return Card(
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    child: ListTile(
-                      title: Text(e.descricao),
-                      subtitle: Text(
-                        '${e.dataHora.day}/${e.dataHora.month}/${e.dataHora.year} • ${e.dataHora.hour}:${e.dataHora.minute.toString().padLeft(2, '0')}',
-                        style: const TextStyle(color: Colors.grey),
+              child: StreamBuilder<QuerySnapshot>(
+                stream: controller.listarEventosStream(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+
+                  if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                    return const Center(
+                      child: Text(
+                        "Nenhum compromisso registrado.",
+                        style: TextStyle(color: Colors.grey),
                       ),
-                    ),
+                    );
+                  }
+
+                  final docs = snapshot.data!.docs;
+
+                  return ListView(
+                    children: docs.map((doc) {
+                      final data = doc.data() as Map<String, dynamic>;
+                      final dataHora = (data["dataHora"] as Timestamp).toDate();
+
+                      return Card(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: ListTile(
+                          title: Text(data["descricao"]),
+                          subtitle: Text(
+                            "${dataHora.day}/${dataHora.month}/${dataHora.year}  •  "
+                            "${dataHora.hour}:${dataHora.minute.toString().padLeft(2, '0')}",
+                            style: const TextStyle(color: Colors.grey),
+                          ),
+                          trailing: IconButton(
+                            icon: const Icon(Icons.delete, color: Colors.red),
+                            onPressed: () async {
+                              final erro = await controller.removerEvento(doc.id);
+
+                              if (erro != null && mounted) {
+                                ScaffoldMessenger.of(context)
+                                    .showSnackBar(SnackBar(content: Text(erro)));
+                              }
+                            },
+                          ),
+                        ),
+                      );
+                    }).toList(),
                   );
-                }).toList(),
+                },
               ),
-            )
+            ),
           ],
         ),
       ),
