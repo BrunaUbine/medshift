@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:stream_chat_flutter/stream_chat_flutter.dart';
-import 'chat_view.dart';
+import '../View/chatview.dart';
 import '../utils/chat_helpers.dart';
 
 class UsersListView extends StatelessWidget {

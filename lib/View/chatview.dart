@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:stream_chat_flutter/stream_chat_flutter.dart';
+import 'package:stream_chat_flutter/stream_chat_flutter.dart' as stream;
 
 class ChatView extends StatelessWidget {
   const ChatView({super.key});
@@ -7,14 +7,11 @@ class ChatView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: ChannelHeader(
-        showConnectionStateTile: true,
-      ),
+      appBar: stream.StreamChannelHeader(),
       body: Column(
-        children: [
-          const Expanded(child: MessageListView()),
-          const TypingIndicator(),
-          const MessageInput(),
+        children: const [
+          Expanded(child: stream.StreamMessageListView()),
+          stream.StreamMessageInput(),
         ],
       ),
     );

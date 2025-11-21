@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:stream_chat_flutter/stream_chat_flutter.dart';
+import 'package:stream_chat_flutter/stream_chat_flutter.dart' as stream;
 import '../services/stream_service.dart';
 
 class LoginController extends ChangeNotifier {
@@ -15,10 +15,10 @@ class LoginController extends ChangeNotifier {
   }
 
   Future<void> conectarStream(User user) async {
-    final client = StreamService.client;
+    final client = StreamService.client; 
 
     await client.connectUser(
-      User(
+      stream.User(
         id: user.uid,
         extraData: {
           "name": user.displayName ?? user.email!,
