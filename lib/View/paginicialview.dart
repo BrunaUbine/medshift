@@ -7,7 +7,7 @@ class PaginaInicialView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controller = Provider.of<PagInicialController>(context);
+    final controller = Provider.of<PaginaInicialController>(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -29,21 +29,11 @@ class PaginaInicialView extends StatelessWidget {
           return Card(
             elevation: 3,
             margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             child: ListTile(
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 20,
-                vertical: 8,
-              ),
-
               leading: CircleAvatar(
                 backgroundColor: const Color(0xFF1976D2).withOpacity(0.1),
-                child: Icon(
-                  iconData,
-                  color: const Color(0xFF1976D2),
-                ),
+                child: Icon(iconData, color: const Color(0xFF1976D2)),
               ),
 
               title: Text(
@@ -55,11 +45,7 @@ class PaginaInicialView extends StatelessWidget {
                 ),
               ),
 
-              trailing: const Icon(
-                Icons.arrow_forward_ios,
-                size: 18,
-                color: Colors.grey,
-              ),
+              trailing: const Icon(Icons.arrow_forward_ios, size: 18, color: Colors.grey),
 
               onTap: () => controller.aoClicar(context, funcionalidade),
             ),

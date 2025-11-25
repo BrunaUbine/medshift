@@ -64,6 +64,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '54308082917',
     projectId: 'medshi',
     storageBucket: 'medshi.firebasestorage.app',
+    iosClientId: '54308082917-6c6mtm4nj54geerrcp4db4c1rjoq09r5.apps.googleusercontent.com',
     iosBundleId: 'com.example.medshift',
   );
 
@@ -73,6 +74,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '54308082917',
     projectId: 'medshi',
     storageBucket: 'medshi.firebasestorage.app',
+    iosClientId: '54308082917-6c6mtm4nj54geerrcp4db4c1rjoq09r5.apps.googleusercontent.com',
     iosBundleId: 'com.example.medshift',
   );
 

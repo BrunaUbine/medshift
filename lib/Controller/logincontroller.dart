@@ -7,6 +7,7 @@ class LoginController extends ChangeNotifier {
   final FirebaseAuth auth = FirebaseAuth.instance;
 
   bool carregando = false;
+
   void setLoading(bool v) {
     carregando = v;
     notifyListeners();
@@ -30,7 +31,7 @@ class LoginController extends ChangeNotifier {
       );
 
       setLoading(false);
-      return null; 
+      return null;
 
     } on FirebaseAuthException catch (e) {
       setLoading(false);

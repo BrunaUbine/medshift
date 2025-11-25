@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'utils/app_routes.dart';
 
+import 'utils/app_routes.dart';
+import 'firebase_options.dart';  
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
 
   runApp(const MyApp());
 }
@@ -17,8 +21,12 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'MedShift',
-      initialRoute: AppRoutes.login, 
-      routes: AppRoutes.routes,     
+      initialRoute: AppRoutes.login,
+      routes: AppRoutes.routes,
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF1976D2)),
+        useMaterial3: true,
+      ),
     );
   }
 }
