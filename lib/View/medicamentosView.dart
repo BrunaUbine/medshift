@@ -52,7 +52,7 @@ class _MedicamentosViewState extends State<MedicamentosView> {
                 }
 
                 return DropdownButtonFormField<String>(
-                  value: pacienteSelecionado,
+                  initialValue: pacienteSelecionado,
                   decoration: const InputDecoration(
                     labelText: "Selecione o paciente",
                   ),

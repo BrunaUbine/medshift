@@ -1,51 +1,38 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../Controller/anotacoesController.dart';
 
-class AnotacoesController extends ChangeNotifier {
-  final textoCtl = TextEditingController();
-  final FirebaseFirestore db = FirebaseFirestore.instance;
-  final FirebaseAuth auth = FirebaseAuth.instance;
+class AnotacoesView extends StatelessWidget {
+  const AnotacoesView({super.key});
 
-  Future<String?> addAnotacao() async {
-    try {
-      final texto = textoCtl.text.trim();
+  @override
+  Widget build(BuildContext context) {
+    final controller = Provider.of<AnotacoesController>(context);
 
-      if (texto.isEmpty) return "Digite uma anotação.";
+    return Scaffold(
+      appBar: AppBar(title: const Text("Anotações")),
+      body: StreamBuilder(
+        stream: controller.listarAnotacoesStream(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return const Center(child: CircularProgressIndicator());
+          }
 
-      final uid = auth.currentUser!.uid;
+          final docs = snapshot.data!.docs;
 
-      await db.collection("anotacoes").add({
-        "texto": texto,
-        "uidUsuario": uid,
-        "criadoEm": FieldValue.serverTimestamp(),
-      });
+          return ListView.builder(
+            itemCount: docs.length,
+            itemBuilder: (context, index) {
+              final item = docs[index];
+              final texto = item['texto'];
 
-      textoCtl.clear();
-      notifyListeners();
-      return null;
-
-    } catch (e) {
-      return "Erro ao salvar anotação: $e";
-    }
-  }
-
-  Stream<QuerySnapshot> listarStream() {
-    final uid = auth.currentUser!.uid;
-
-    return db
-        .collection("anotacoes")
-        .where("uidUsuario", isEqualTo: uid)
-        .orderBy("criadoEm", descending: true)
-        .snapshots();
-  }
-
-  Future<String?> removerAnotacao(String id) async {
-    try {
-      await db.collection("anotacoes").doc(id).delete();
-      return null;
-    } catch (e) {
-      return "Erro ao remover anotação: $e";
-    }
+              return ListTile(
+                title: Text(texto),
+              );
+            },
+          );
+        },
+      ),
+    );
   }
 }

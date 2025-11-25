@@ -18,8 +18,9 @@ dependencies:
   cloud_firestore: ^6.1.0
   firebase_auth: ^6.1.2
 
-  stream_chat_flutter: ^9.20.0
-  stream_chat: ^9.20.0
+  stream_chat_flutter: ^6.3.0
+  stream_chat: ^6.3.0
+  stream_chat_flutter_core: 6.11.0
 
 
 dev_dependencies:

@@ -1,31 +1,33 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:stream_chat_flutter/stream_chat_flutter.dart';
-import 'services/stream_service.dart';
-import 'View/loginview.dart';
-import 'package:provider/provider.dart';
-import 'Controller/logincontroller.dart';
-import 'View/conversasView.dart';
 
-void main() {
+import 'services/stream_service.dart';
+import 'utils/app_routes.dart';
+
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(MyApp());
+  await Firebase.initializeApp();
+
+  final client = StreamService.client;
+
+  runApp(MyApp(client: client));
 }
 
 class MyApp extends StatelessWidget {
-  final client = StreamService.client;
+  final StreamChatClient client;
+
+  const MyApp({super.key, required this.client});
 
   @override
   Widget build(BuildContext context) {
     return StreamChat(
       client: client,
-      child: MultiProvider(
-        providers: [
-          ChangeNotifierProvider(create: (_) => LoginController()),
-        ],
-        child: MaterialApp(
-          debugShowCheckedModeBanner: false,
-          home: const LoginView(),
-        ),
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        title: 'MedShift',
+        initialRoute: AppRoutes.login,
+        routes: AppRoutes.routes,
       ),
     );
   }

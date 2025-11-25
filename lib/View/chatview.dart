@@ -7,10 +7,12 @@ class ChatView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: stream.StreamChannelHeader(),
+      appBar: const stream.StreamChannelHeader(),
       body: Column(
         children: const [
-          Expanded(child: stream.StreamMessageListView()),
+          Expanded(
+            child: stream.StreamMessageListView(),
+          ),
           stream.StreamMessageInput(),
         ],
       ),
