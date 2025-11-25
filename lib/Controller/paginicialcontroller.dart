@@ -1,19 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import '../utils/app_routes.dart';
 
 class PagInicialController extends ChangeNotifier {
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   final List<String> funcionalidadeNames = [
+    "Protuários",
     "Pacientes",
     "Agenda",
     "Anotações",
-    "Chat",
     "Sobre",
     "Sair",
   ];
 
   final Map<String, IconData> funcionalidadeIcons = {
+
+    "Prontuários": Icons.note,    
     "Pacientes": Icons.people_alt,
     "Agenda": Icons.calendar_month,
     "Anotações": Icons.edit_note,
@@ -29,24 +32,24 @@ class PagInicialController extends ChangeNotifier {
 
   void aoClicar(BuildContext context, String funcionalidade) async {
     switch (funcionalidade) {
+      case "Prontuários":
+        AppRoutes.prontuarios;
+        break;
+        
       case "Pacientes":
-        Navigator.pushNamed(context, "/pacientes");
+        AppRoutes.pacientes;
         break;
 
       case "Agenda":
-        Navigator.pushNamed(context, "/agenda");
+        AppRoutes.agenda;
         break;
 
       case "Anotações":
-        Navigator.pushNamed(context, "/anotacoes");
-        break;
-
-      case "Chat":
-        Navigator.pushNamed(context, "/chat");
+        AppRoutes.anotacoes;
         break;
 
       case "Sobre":
-        Navigator.pushNamed(context, "/sobre");
+        AppRoutes.sobre;
         break;
 
       case "Sair":

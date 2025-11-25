@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:stream_chat_flutter/stream_chat_flutter.dart' as stream;
-import '../services/stream_service.dart';
 
 class LoginController extends ChangeNotifier {
   final txtEmail = TextEditingController();
@@ -14,37 +12,42 @@ class LoginController extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> conectarStream(User user) async {
-    final client = StreamService.client; 
-
-    await client.connectUser(
-      stream.User(
-        id: user.uid,
-        extraData: {
-          "name": user.displayName ?? user.email!,
-        },
-      ),
-      client.devToken(user.uid).rawValue,
-    );
-  }
-
   Future<String?> login(BuildContext context) async {
     try {
       setLoading(true);
 
-      final cred = await auth.signInWithEmailAndPassword(
-        email: txtEmail.text.trim(),
-        password: txtSenha.text.trim(),
+      final email = txtEmail.text.trim();
+      final senha = txtSenha.text.trim();
+
+      if (email.isEmpty || senha.isEmpty) {
+        setLoading(false);
+        return "Preencha todos os campos.";
+      }
+
+      await auth.signInWithEmailAndPassword(
+        email: email,
+        password: senha,
       );
 
-      final user = cred.user!;
-      await conectarStream(user);
-
       setLoading(false);
-      return null;
+      return null; 
+
     } on FirebaseAuthException catch (e) {
       setLoading(false);
-      return e.message;
+
+      switch (e.code) {
+        case 'user-not-found':
+          return "Usuário não encontrado.";
+        case 'wrong-password':
+          return "Senha incorreta.";
+        case 'invalid-email':
+          return "Email inválido.";
+        default:
+          return e.message ?? "Erro desconhecido.";
+      }
+    } catch (e) {
+      setLoading(false);
+      return "Erro inesperado: $e";
     }
   }
 

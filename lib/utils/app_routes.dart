@@ -15,7 +15,6 @@ import '../View/agendaView.dart';
 import '../View/anotacoesView.dart';
 import '../View/medicamentosView.dart';
 import '../View/sobreView.dart';
-import '../View/chatview.dart';
 
 class AppRoutes {
   static const login = '/login';
@@ -59,7 +58,6 @@ class AppRoutes {
         ),
     sobre: (_) => const SobreView(),
 
-    chat: (_) => const ChatView(),
 
   };
 }
