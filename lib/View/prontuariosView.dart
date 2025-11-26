@@ -2,168 +2,185 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:medshift/Controller/prontuarioController.dart';
 import 'package:medshift/View/components/popup_menu.dart';
+import 'package:provider/provider.dart';
 
 class ProntuariosView extends StatefulWidget {
-  const ProntuariosView({super.key});
+  final String pacienteId;
+  final String nomePaciente;
+
+  const ProntuariosView({
+    super.key,
+    required this.pacienteId,
+    required this.nomePaciente,
+  });
 
   @override
   State<ProntuariosView> createState() => _ProntuariosViewState();
 }
 
 class _ProntuariosViewState extends State<ProntuariosView> {
-  final controller = ProntuarioController();
-  String? pacienteSelecionado;
-
   @override
   Widget build(BuildContext context) {
+    final controller = Provider.of<ProntuarioController>(context);
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Prontuário Clínico"),
+        title: Text("Prontuário — ${widget.nomePaciente}"),
+        backgroundColor: const Color(0xFF1976D2),
+        elevation: 0,
         actions: [buildPopupMenu(context)],
       ),
 
       body: Padding(
         padding: const EdgeInsets.all(16),
-        
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            const Text(
+              "Nova Anotação",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF1976D2),
+                fontSize: 16,
+              ),
+            ),
+            const SizedBox(height: 10),
 
-            StreamBuilder<QuerySnapshot>(
-              stream: FirebaseFirestore.instance
-                  .collection("pacientes")
-                  .orderBy("nome")
-                  .snapshots(),
-              builder: (context, snap) {
-                if (!snap.hasData) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-
-                final docs = snap.data!.docs;
-
-                if (docs.isEmpty) {
-                  return const Center(
-                    child: Padding(
-                      padding: EdgeInsets.only(top: 50),
-                      child: Text(
-                        "Nenhum paciente cadastrado.",
-                        style: TextStyle(fontSize: 16, color: Colors.grey),
+            Card(
+              elevation: 3,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Column(
+                  children: [
+                    TextField(
+                      controller: controller.tituloCtl,
+                      decoration: const InputDecoration(
+                        labelText: "Título",
                       ),
                     ),
-                  );
-                }
+                    const SizedBox(height: 10),
+                    TextField(
+                      controller: controller.descricaoCtl,
+                      maxLines: 3,
+                      decoration: const InputDecoration(labelText: "Descrição"),
+                    ),
+                    const SizedBox(height: 10),
 
-                return DropdownButtonFormField<String>(
-                  value: pacienteSelecionado,
-                  decoration: const InputDecoration(
-                    labelText: "Selecione o paciente",
-                  ),
-                  items: docs.map((d) {
-                    final data = d.data() as Map<String, dynamic>;
-                    return DropdownMenuItem(
-                      value: d.id, // usamos o ID do Firestore
-                      child: Text(data["nome"]),
-                    );
-                  }).toList(),
-                  onChanged: (v) => setState(() => pacienteSelecionado = v),
-                );
-              },
+                    ElevatedButton(
+                      onPressed: () async {
+                        final erro = await controller
+                            .adicionarAnotacao(widget.pacienteId);
+
+                        if (!mounted) return;
+
+                        if (erro != null) {
+                          ScaffoldMessenger.of(context)
+                              .showSnackBar(SnackBar(content: Text(erro)));
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text("Anotação salva!"),
+                              backgroundColor: Colors.green,
+                            ),
+                          );
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF1976D2),
+                        minimumSize: const Size(double.infinity, 45),
+                      ),
+                      child: const Text("Salvar"),
+                    ),
+                  ],
+                ),
+              ),
             ),
 
             const SizedBox(height: 20),
 
-            if (pacienteSelecionado != null) ...[
-              TextFormField(
-                controller: controller.tituloCtl,
-                decoration: const InputDecoration(labelText: "Título"),
+            const Text(
+              "Histórico do Prontuário",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF1976D2),
+                fontSize: 16,
               ),
-              const SizedBox(height: 12),
+            ),
+            const SizedBox(height: 10),
 
-              TextFormField(
-                controller: controller.descricaoCtl,
-                maxLines: 3,
-                decoration: const InputDecoration(labelText: "Descrição"),
-              ),
-              const SizedBox(height: 16),
+            Expanded(
+              child: StreamBuilder<QuerySnapshot>(
+                stream: controller.listarPorPacienteStream(widget.pacienteId),
+                builder: (context, snapshot) {
+                  if (!snapshot.hasData) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
 
-              ElevatedButton.icon(
-                icon: const Icon(Icons.save),
-                label: const Text("Salvar anotação"),
-                onPressed: () async {
-                  final erro = await controller.adicionarAnotacao(
-                    pacienteSelecionado!,
-                  );
+                  final docs = snapshot.data!.docs;
 
-                  if (!mounted) return;
-
-                  if (erro != null) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text(erro)),
+                  if (docs.isEmpty) {
+                    return const Center(
+                      child: Text(
+                        "Nenhuma anotação registrada.",
+                        style: TextStyle(color: Colors.grey),
+                      ),
                     );
                   }
-                },
-              ),
 
-              const Divider(height: 32),
+                  return ListView(
+                    children: docs.map((doc) {
+                      final data = doc.data() as Map<String, dynamic>;
+                      final dt = (data["criadoEm"] as Timestamp?)?.toDate();
 
-              const Text(
-                "Histórico de Prontuário",
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-
-              const SizedBox(height: 10),
-
-              Expanded(
-                child: StreamBuilder<QuerySnapshot>(
-                  stream: controller.listarPorPacienteStream(
-                    pacienteSelecionado!,
-                  ),
-                  builder: (context, snap) {
-                    if (!snap.hasData) {
-                      return const Center(child: CircularProgressIndicator());
-                    }
-
-                    final docs = snap.data!.docs;
-
-                    if (docs.isEmpty) {
-                      return const Center(
-                        child: Text(
-                          "Nenhuma anotação encontrada.",
-                          style: TextStyle(color: Colors.grey),
+                      return Card(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
                         ),
-                      );
-                    }
-
-                    return ListView(
-                      children: docs.map((doc) {
-                        final data = doc.data() as Map<String, dynamic>;
-
-                        final dt = (data["criadoEm"] as Timestamp?)?.toDate();
-
-                        return Card(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: ListTile(
-                            title: Text(data["titulo"]),
-                            subtitle: Text(data["descricao"]),
-                            trailing: Text(
-                              dt != null
-                                  ? "${dt.day}/${dt.month}/${dt.year}"
-                                  : "",
-                              style: const TextStyle(color: Colors.grey),
+                        child: ListTile(
+                          title: Text(
+                            data["titulo"],
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
-                        );
-                      }).toList(),
-                    );
-                  },
-                ),
+                          subtitle: Text(data["descricao"]),
+
+                          trailing: Text(
+                            dt != null
+                                ? "${dt.day}/${dt.month}/${dt.year}"
+                                : "",
+                            style: const TextStyle(color: Colors.grey),
+                          ),
+
+                          onLongPress: () async {
+                            final erro =
+                                await controller.removerAnotacao(doc.id);
+
+                            if (!mounted) return;
+
+                            if (erro != null) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text(erro)),
+                              );
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text("Anotação removida."),
+                                  backgroundColor: Colors.red,
+                                ),
+                              );
+                            }
+                          },
+                        ),
+                      );
+                    }).toList(),
+                  );
+                },
               ),
-            ],
+            ),
           ],
         ),
       ),

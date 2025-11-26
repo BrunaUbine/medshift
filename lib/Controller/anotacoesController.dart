@@ -58,6 +58,14 @@ class AnotacoesController extends ChangeNotifier{
       );
     }).toList();
   }
+  Future<String?> removerAnotacao(String id) async {
+    try {
+      await db.collection("anotacoes").doc(id).delete();
+      return null;
+    } catch (e) {
+      return "Erro ao remover anotação: $e";
+    }
+  }
  void limparCampos() {
     textoCtl.clear();
   }

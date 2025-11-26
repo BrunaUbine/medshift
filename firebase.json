@@ -1,1 +1,39 @@
-{"flutter":{"platforms":{"android":{"default":{"projectId":"medshi","appId":"1:54308082917:android:47a379e94ea70e2971700c","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"medshi","configurations":{"android":"1:54308082917:android:47a379e94ea70e2971700c","ios":"1:54308082917:ios:5b2529d56cdea91471700c","macos":"1:54308082917:ios:5b2529d56cdea91471700c","web":"1:54308082917:web:ee038f9f9768435271700c","windows":"1:54308082917:web:7b92b03ea106059a71700c"}}}}}}
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "medshi",
+          "appId": "1:54308082917:android:47a379e94ea70e2971700c",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "medshi",
+          "configurations": {
+            "android": "1:54308082917:android:47a379e94ea70e2971700c",
+            "ios": "1:54308082917:ios:5b2529d56cdea91471700c",
+            "macos": "1:54308082917:ios:5b2529d56cdea91471700c",
+            "web": "1:54308082917:web:ee038f9f9768435271700c",
+            "windows": "1:54308082917:web:7b92b03ea106059a71700c"
+          }
+        }
+      }
+    }
+  },
+  "hosting": {
+    "public": "build/web",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
+  }
+}

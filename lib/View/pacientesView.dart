@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:medshift/Controller/medicamentosController.dart';
 import 'package:medshift/Controller/pacientesController.dart';
+import 'package:medshift/Controller/prontuariocontroller.dart';
 import 'package:medshift/View/tela_compartilhadaView.dart';
+import 'package:medshift/View/components/popup_menu.dart';
 import 'package:provider/provider.dart';
 
 class PacientesView extends StatefulWidget {
@@ -19,8 +22,13 @@ class _PacientesViewState extends State<PacientesView> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Pacientes'),
+        title: const Text(
+          'Pacientes',
+          style: TextStyle(color: Colors.white),
+        ),
         backgroundColor: const Color(0xFF1976D2),
+        centerTitle: true,
+        actions: [buildPopupMenu(context)],
       ),
 
       body: SingleChildScrollView(
@@ -30,7 +38,9 @@ class _PacientesViewState extends State<PacientesView> {
           children: [
             Card(
               elevation: 4,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
               child: Padding(
                 padding: const EdgeInsets.all(16),
                 child: Form(
@@ -47,6 +57,7 @@ class _PacientesViewState extends State<PacientesView> {
                           color: Color(0xFF1976D2),
                         ),
                       ),
+
                       const SizedBox(height: 16),
 
                       TextFormField(
@@ -85,15 +96,19 @@ class _PacientesViewState extends State<PacientesView> {
                         icon: const Icon(Icons.save),
                         label: const Text(
                           'Salvar Paciente',
-                          style: TextStyle(fontWeight: FontWeight.bold),
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white
+                          ),
                         ),
                         style: ElevatedButton.styleFrom(
-                          minimumSize: const Size(double.infinity, 50),
                           backgroundColor: const Color(0xFF1976D2),
+                          minimumSize: const Size(double.infinity, 50),
                         ),
                         onPressed: () async {
                           if (formKey.currentState!.validate()) {
                             final erro = await controller.addPaciente();
+
                             if (erro != null && mounted) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(content: Text(erro)),
@@ -121,8 +136,13 @@ class _PacientesViewState extends State<PacientesView> {
 
             const Text(
               'Pacientes Cadastrados',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+                color: Color(0xFF1976D2),
+              ),
             ),
+
             const SizedBox(height: 10),
 
             StreamBuilder(
@@ -154,19 +174,26 @@ class _PacientesViewState extends State<PacientesView> {
                     final data = doc.data() as Map<String, dynamic>;
 
                     return Card(
+                      elevation: 3,
                       shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12)),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                       margin: const EdgeInsets.symmetric(vertical: 6),
                       child: ListTile(
-                        leading: const Icon(Icons.person, color: Color(0xFF1976D2)),
+                        leading: const Icon(
+                          Icons.person,
+                          color: Color(0xFF1976D2),
+                        ),
 
                         title: Text(
                           data["nome"],
-                          style: const TextStyle(fontWeight: FontWeight.w600),
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
 
                         subtitle: Text(
-                          'Acompanhante: ${data["acompanhante"]?.isEmpty ?? true ? "-" : data["acompanhante"]}',
+                          "Acompanhante: ${data["acompanhante"]?.isEmpty ?? true ? "-" : data["acompanhante"]}",
                         ),
 
                         trailing: IconButton(
@@ -185,9 +212,15 @@ class _PacientesViewState extends State<PacientesView> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (_) => TelaCompartilhadaView(
-                                pacienteId: doc.id,          
-                                pacienteNome: data["nome"],
+                              builder: (_) => MultiProvider(
+                                providers: [
+                                  ChangeNotifierProvider(create: (_) => ProntuarioController()),
+                                  ChangeNotifierProvider(create: (_) => MedicamentosController()),
+                                ],
+                                child: TelaCompartilhadaView(
+                                  pacienteId: doc.id,
+                                  pacienteNome: data["nome"],
+                                ),
                               ),
                             ),
                           );

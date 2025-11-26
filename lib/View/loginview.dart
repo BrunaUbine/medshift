@@ -2,31 +2,33 @@ import 'package:flutter/material.dart';
 import 'package:medshift/Controller/logincontroller.dart';
 import 'package:medshift/View/cadastroview.dart';
 import 'package:medshift/View/EsqueciASenhaView.dart';
-import 'package:provider/provider.dart';
+import 'package:medshift/View/components/popup_menu.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
 
   @override
-  _LoginViewState createState() => _LoginViewState();
+  State<LoginView> createState() => _LoginViewState();
 }
 
 class _LoginViewState extends State<LoginView> {
   final LoginController _controller = LoginController();
-  bool _carregando = false;
+  bool carregando = false;
 
   Future<void> _handleLogin() async {
-    setState(() => _carregando = true);
+    setState(() => carregando = true);
 
     final erro = await _controller.login(context);
 
-    setState(() => _carregando = false);
+    setState(() => carregando = false);
+
+    if (!mounted) return;
 
     if (erro == null) {
       Navigator.pushNamedAndRemoveUntil(
         context,
-        '/inicio',
-        (route) => false,
+        "/inicio",
+        (_) => false,
       );
     } else {
       ScaffoldMessenger.of(context)
@@ -34,38 +36,36 @@ class _LoginViewState extends State<LoginView> {
     }
   }
 
-  void _handleEsqueciSenha() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => const EsqueciSenhaView()),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
-    final screenHeight = MediaQuery.of(context).size.height;
-
     return Scaffold(
+
       appBar: AppBar(
         title: const Text(
           'MedShift',
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
-        backgroundColor: Colors.blue,
+        backgroundColor: const Color(0xFF1976D2),
         centerTitle: true,
+        iconTheme: const IconThemeData(color: Colors.white),
+        actions: [
+          buildPopupMenu(context),
+        ],
       ),
+
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Column(
           children: [
-            SizedBox(height: screenHeight * 0.05),
+
+            const SizedBox(height: 20),
 
             SizedBox(
-              height: 200,
+              height: 180,
               child: Image.asset('assets/images/logo.png'),
             ),
 
-            const SizedBox(height: 40),
+            const SizedBox(height: 30),
 
             TextField(
               controller: _controller.txtEmail,
@@ -91,21 +91,34 @@ class _LoginViewState extends State<LoginView> {
             Align(
               alignment: Alignment.centerRight,
               child: TextButton(
-                onPressed: _handleEsqueciSenha,
-                child: const Text('Esqueci minha senha'),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const EsqueciSenhaView(),
+                    ),
+                  );
+                },
+                child: const Text("Esqueci minha senha"),
               ),
             ),
 
             const SizedBox(height: 20),
 
-            _carregando
+            carregando
                 ? const CircularProgressIndicator()
                 : ElevatedButton(
                     onPressed: _handleLogin,
                     style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF1976D2),
+                      foregroundColor: Colors.white,
                       minimumSize: const Size(double.infinity, 50),
+                      textStyle: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
-                    child: const Text('Entrar', style: TextStyle(fontSize: 16)),
+                    child: const Text('Entrar'),
                   ),
 
             const SizedBox(height: 20),
@@ -114,7 +127,7 @@ class _LoginViewState extends State<LoginView> {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (_) => const Cadastroview()),
+                  MaterialPageRoute(builder: (_) => const CadastroView()),
                 );
               },
               style: OutlinedButton.styleFrom(
@@ -122,7 +135,10 @@ class _LoginViewState extends State<LoginView> {
                 foregroundColor: const Color(0xFF1976D2),
                 minimumSize: const Size(double.infinity, 50),
               ),
-              child: const Text('Cadastrar', style: TextStyle(fontSize: 16)),
+              child: const Text(
+                'Cadastrar',
+                style: TextStyle(fontSize: 16),
+              ),
             ),
           ],
         ),

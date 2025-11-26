@@ -46,15 +46,15 @@ class PacientesController extends ChangeNotifier {
     acompanhanteCtl.clear();
   }
 
-  Stream<QuerySnapshot> listarPacientesStream() {
-    final uid = auth.currentUser!.uid;
-     return db
+ Stream<QuerySnapshot> listarPacientesStream() {
+  final uid = auth.currentUser!.uid;
+
+  return db
       .collection("pacientes")
       .where("uidUsuario", isEqualTo: uid)
-      .orderBy("nomeLower")
+      .orderBy("criadoEm", descending: false)
       .snapshots();
   }
-
   Future<List<Paciente>> listarPacientes() async {
     final uid = auth.currentUser!.uid;
 

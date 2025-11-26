@@ -3,6 +3,7 @@ import 'package:medshift/Controller/agendaController.dart';
 import 'package:provider/provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:medshift/View/components/popup_menu.dart';
+
 class AgendaView extends StatefulWidget {
   const AgendaView({super.key});
 
@@ -17,9 +18,13 @@ class _AgendaViewState extends State<AgendaView> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Agenda"),
+        title: const Text(
+          "Agenda",
+          style: TextStyle(color: Colors.white),
+        ),
         actions: [buildPopupMenu(context)],
         backgroundColor: const Color(0xFF1976D2),
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
 
       body: Padding(
@@ -34,16 +39,17 @@ class _AgendaViewState extends State<AgendaView> {
               child: Padding(
                 padding: const EdgeInsets.all(12),
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text(
                       "Novo Compromisso",
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         color: Color(0xFF1976D2),
+                        fontSize: 18,
                       ),
                     ),
-                    const SizedBox(height: 8),
-
+                    const SizedBox(height: 12),
 
                     TextFormField(
                       controller: controller.descCtl,
@@ -52,7 +58,7 @@ class _AgendaViewState extends State<AgendaView> {
                       ),
                     ),
 
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 12),
 
                     Row(
                       children: [
@@ -65,6 +71,10 @@ class _AgendaViewState extends State<AgendaView> {
                                   "${controller.dataSelecionada!.year}  "
                                   "${controller.dataSelecionada!.hour.toString().padLeft(2, '0')}:"
                                   "${controller.dataSelecionada!.minute.toString().padLeft(2, '0')}",
+                            style: const TextStyle(
+                              fontSize: 15,
+                              color: Colors.black87,
+                            ),
                           ),
                         ),
                         IconButton(
@@ -83,11 +93,19 @@ class _AgendaViewState extends State<AgendaView> {
                         if (erro != null && mounted) {
                           ScaffoldMessenger.of(context)
                               .showSnackBar(SnackBar(content: Text(erro)));
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text("Evento adicionado!"),
+                              backgroundColor: Colors.green,
+                            ),
+                          );
                         }
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF1976D2),
                         minimumSize: const Size(double.infinity, 45),
+                        foregroundColor: Colors.white,
                       ),
                       child: const Text("Salvar"),
                     ),
@@ -127,10 +145,13 @@ class _AgendaViewState extends State<AgendaView> {
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: ListTile(
-                          title: Text(data["descricao"]),
+                          title: Text(
+                            data["descricao"],
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
                           subtitle: Text(
                             "${dataHora.day}/${dataHora.month}/${dataHora.year}  •  "
-                            "${dataHora.hour}:${dataHora.minute.toString().padLeft(2, '0')}",
+                            "${dataHora.hour.toString().padLeft(2, '0')}:${dataHora.minute.toString().padLeft(2, '0')}",
                             style: const TextStyle(color: Colors.grey),
                           ),
                           trailing: IconButton(

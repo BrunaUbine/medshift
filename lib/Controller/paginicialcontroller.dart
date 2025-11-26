@@ -25,7 +25,9 @@ class PaginaInicialController extends ChangeNotifier {
 
   List<String> get funcionalidades => funcionalidadeNames;
 
-  IconData getIconFor(String f) => funcionalidadeIcons[f] ?? Icons.help_outline;
+  IconData getIconFor(String f) {
+    return funcionalidadeIcons[f] ?? Icons.help_outline;
+  }
 
   void aoClicar(BuildContext context, String funcionalidade) async {
     switch (funcionalidade) {
@@ -39,10 +41,6 @@ class PaginaInicialController extends ChangeNotifier {
 
       case "Agenda":
         Navigator.pushNamed(context, AppRoutes.agenda);
-        break;
-
-      case "Anotações":
-        Navigator.pushNamed(context, AppRoutes.anotacoes);
         break;
 
       case "Sobre":
