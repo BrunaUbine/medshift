@@ -6,7 +6,6 @@ class PaginaInicialController extends ChangeNotifier {
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   final List<String> funcionalidadeNames = [
-    "Prontuários",
     "Pacientes",
     "Agenda",
     "Anotações",
@@ -15,7 +14,6 @@ class PaginaInicialController extends ChangeNotifier {
   ];
 
   final Map<String, IconData> funcionalidadeIcons = {
-    "Prontuários": Icons.note,
     "Pacientes": Icons.people_alt,
     "Agenda": Icons.calendar_month,
     "Anotações": Icons.edit_note,
@@ -31,10 +29,6 @@ class PaginaInicialController extends ChangeNotifier {
 
   void aoClicar(BuildContext context, String funcionalidade) async {
     switch (funcionalidade) {
-      case "Prontuários":
-        Navigator.pushNamed(context, AppRoutes.prontuarios);
-        break;
-
       case "Pacientes":
         Navigator.pushNamed(context, AppRoutes.pacientes);
         break;

@@ -1,22 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:provider/provider.dart';
-
-import 'package:medshift/Controller/medicamentosController.dart';
-import 'package:medshift/View/components/popup_menu.dart';
-
-import 'package:medshift/Controller/api_medicamentos_controller.dart';
-import 'package:medshift/View/api_medicamentos_select_view.dart';
-import 'package:medshift/View/historico_medicamentos_view.dart';
+import '../Controller/medicamentosController.dart';
 
 class MedicamentosView extends StatefulWidget {
   final String pacienteId;
-  final String nomePaciente;
+  final String pacienteNome;
 
   const MedicamentosView({
     super.key,
     required this.pacienteId,
-    required this.nomePaciente,
+    required this.pacienteNome,
   });
 
   @override
@@ -24,203 +17,164 @@ class MedicamentosView extends StatefulWidget {
 }
 
 class _MedicamentosViewState extends State<MedicamentosView> {
+  final LayerLink _layerLink = LayerLink();
+  OverlayEntry? _overlayEntry;
+  bool mostrandoSugestoes = false;
+
+  void mostrarSugestoes() {
+    if (_overlayEntry != null) return;
+
+    final controller = Provider.of<MedicamentosController>(context, listen: false);
+
+    _overlayEntry = OverlayEntry(
+      builder: (context) => Positioned(
+        width: MediaQuery.of(context).size.width - 40,
+        child: CompositedTransformFollower(
+          link: _layerLink,
+          offset: const Offset(0, 55),
+          showWhenUnlinked: false,
+          child: Material(
+            elevation: 4,
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(8),
+            child: AnimatedBuilder(
+              animation: controller,
+              builder: (context, _) {
+                if (controller.sugestoes.isEmpty) {
+                  return const SizedBox.shrink();
+                }
+                return ListView(
+                  shrinkWrap: true,
+                  padding: EdgeInsets.zero,
+                  children: controller.sugestoes.map((item) {
+                    return ListTile(
+                      title: Text(item),
+                      onTap: () {
+                        controller.nomeCtl.text = item;
+                        esconderSugestoes();
+                      },
+                    );
+                  }).toList(),
+                );
+              },
+            ),
+          ),
+        ),
+      ),
+    );
+
+    Overlay.of(context).insert(_overlayEntry!);
+  }
+
+  void esconderSugestoes() {
+    _overlayEntry?.remove();
+    _overlayEntry = null;
+  }
+
   @override
   Widget build(BuildContext context) {
     final controller = Provider.of<MedicamentosController>(context);
 
     return Scaffold(
       appBar: AppBar(
-        title: Text("Medicamentos — ${widget.nomePaciente}"),
         backgroundColor: const Color(0xFF1976D2),
-        actions: [buildPopupMenu(context)],
+        title: Text("Medicamentos — ${widget.pacienteNome}"),
       ),
+      body: GestureDetector(
+        onTap: esconderSugestoes,
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text("Adicionar Medicamento",
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
 
-      body: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          children: [
-            Align(
-              alignment: Alignment.centerRight,
-              child: TextButton.icon(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => ChangeNotifierProvider.value(
-                        value: controller,
-                        child: HistoricoMedicamentosView(
-                          pacienteId: widget.pacienteId,
-                          nomePaciente: widget.nomePaciente,
-                        ),
-                      ),
-                    ),
-                  );
-                },
-                icon: const Icon(Icons.history, color: Colors.blue),
-                label: const Text(
-                  "Histórico de Medicamentos",
-                  style: TextStyle(color: Colors.blue),
+              const SizedBox(height: 20),
+
+              CompositedTransformTarget(
+                link: _layerLink,
+                child: TextField(
+                  controller: controller.nomeCtl,
+                  decoration: InputDecoration(
+                    labelText: "Nome do Medicamento",
+                    prefixIcon: const Icon(Icons.search),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                  onChanged: (texto) async {
+                    if (texto.length < 2) {
+                      controller.sugestoes = [];
+                      esconderSugestoes();
+                      return;
+                    }
+
+                    await controller.buscarMedicamentos(texto);
+
+                    if (controller.sugestoes.isNotEmpty) {
+                      mostrarSugestoes();
+                    } else {
+                      esconderSugestoes();
+                    }
+                  },
                 ),
               ),
-            ),
 
-            const SizedBox(height: 10),
+              const SizedBox(height: 20),
 
-            Card(
-              elevation: 3,
-              child: Padding(
-                padding: const EdgeInsets.all(12),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      "Adicionar Medicamento",
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF1976D2),
-                        fontSize: 16,
-                      ),
-                    ),
-
-                    const SizedBox(height: 10),
-
-                    Row(
-                      children: [
-                        Expanded(
-                          child: TextField(
-                            controller: controller.nomeCtl,
-                            decoration:
-                                const InputDecoration(labelText: "Nome"),
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                        ElevatedButton(
-                          onPressed: () async {
-                            final nomeSelecionado =
-                                await Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => ChangeNotifierProvider(
-                                  create: (_) =>
-                                      ApiMedicamentosController(),
-                                  child:
-                                      const ApiMedicamentosSelectView(),
-                                ),
-                              ),
-                            );
-
-                            if (nomeSelecionado != null) {
-                              setState(() {
-                                controller.nomeCtl.text =
-                                    nomeSelecionado;
-                              });
-                            }
-                          },
-                          child: const Text("ANVISA"),
-                        ),
-                      ],
-                    ),
-
-                    TextField(
-                        controller: controller.doseCtl,
-                        decoration:
-                            const InputDecoration(labelText: "Dose")),
-                    TextField(
-                        controller: controller.horarioCtl,
-                        decoration:
-                            const InputDecoration(labelText: "Horário")),
-                    TextField(
-                        controller: controller.obsCtl,
-                        decoration:
-                            const InputDecoration(labelText: "Observação")),
-
-                    const SizedBox(height: 10),
-
-                    ElevatedButton(
-                      onPressed: () async {
-                        final erro = await controller.adicionarMedicamento(
-                          widget.pacienteId,
-                        );
-
-                        if (!mounted) return;
-
-                        if (erro != null) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text(erro)),
-                          );
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                                content: Text("Medicamento salvo!")),
-                          );
-                        }
-                      },
-                      child: const Text("Salvar"),
-                    ),
-                  ],
+              TextField(
+                controller: controller.doseCtl,
+                decoration: const InputDecoration(
+                  labelText: "Dose",
+                  prefixIcon: Icon(Icons.medical_information),
                 ),
               ),
-            ),
 
-            const SizedBox(height: 20),
+              const SizedBox(height: 20),
 
-            Expanded(
-              child: StreamBuilder<QuerySnapshot>(
-                stream: controller.listarPorPacienteStream(
-                  widget.pacienteId,
+              TextField(
+                controller: controller.horarioCtl,
+                decoration: const InputDecoration(
+                  labelText: "Horário",
+                  prefixIcon: Icon(Icons.schedule),
                 ),
-                builder: (context, snapshot) {
-                  if (!snapshot.hasData) {
-                    return const Center(
-                        child: CircularProgressIndicator());
-                  }
+              ),
 
-                  final docs = snapshot.data!.docs;
+              const SizedBox(height: 20),
 
-                  if (docs.isEmpty) {
-                    return const Center(
-                      child: Text(
-                          "Nenhum medicamento cadastrado para este paciente.",
-                          style: TextStyle(color: Colors.grey)),
+              TextField(
+                controller: controller.obsCtl,
+                decoration: const InputDecoration(
+                  labelText: "Observação",
+                  prefixIcon: Icon(Icons.description_outlined),
+                ),
+              ),
+
+              const SizedBox(height: 25),
+
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF1976D2),
+                  minimumSize: const Size(double.infinity, 50),
+                ),
+                onPressed: () async {
+                  final erro = await controller.salvarMedicamento(widget.pacienteId);
+
+                  if (erro != null && mounted) {
+                    ScaffoldMessenger.of(context)
+                        .showSnackBar(SnackBar(content: Text(erro)));
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text("Medicamento salvo!"),
+                        backgroundColor: Colors.green,
+                      ),
                     );
                   }
-
-                  return ListView(
-                    children: docs.map((doc) {
-                      final data =
-                          doc.data() as Map<String, dynamic>? ?? {};
-
-                      return Card(
-                        child: ListTile(
-                          title: Text(data["nome"] ?? ''),
-                          subtitle: Text(
-                            "${data["dose"] ?? ''} • ${data["horario"] ?? ''}\nObs: ${data["observacao"] ?? ''}",
-                          ),
-                          trailing: IconButton(
-                            icon: const Icon(Icons.delete,
-                                color: Colors.red),
-                            onPressed: () async {
-                              final erro =
-                                  await controller.removerMedicamento(
-                                      doc.id);
-
-                              if (!mounted) return;
-
-                              if (erro != null) {
-                                ScaffoldMessenger.of(context)
-                                    .showSnackBar(
-                                        SnackBar(content: Text(erro)));
-                              }
-                            },
-                          ),
-                        ),
-                      );
-                    }).toList(),
-                  );
                 },
+                child: const Text("Salvar", style: TextStyle(color: Colors.white)),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

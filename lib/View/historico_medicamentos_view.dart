@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:medshift/Controller/medicamentosController.dart';
-import 'package:medshift/Model/medicamentos.dart';
 
 class HistoricoMedicamentosView extends StatelessWidget {
   final String pacienteId;
@@ -19,42 +19,75 @@ class HistoricoMedicamentosView extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Histórico de $nomePaciente'),
+        title: Text(
+          'Histórico - $nomePaciente',
+          style: const TextStyle(color: Colors.white),
+        ),
         backgroundColor: const Color(0xFF1976D2),
+        centerTitle: true,
       ),
-      body: StreamBuilder<List<Medicamento>>(
-        stream: controller.historicoMedicamentos(pacienteId),
+
+      body: StreamBuilder<QuerySnapshot>(
+        stream: controller.historico(pacienteId)
+,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
 
-          if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text('Nenhum medicamento registrado.'));
+          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+            return const Center(
+              child: Text(
+                'Nenhum registro encontrado.',
+                style: TextStyle(color: Colors.grey, fontSize: 16),
+              ),
+            );
           }
 
-          final lista = snapshot.data!;
+          final docs = snapshot.data!.docs;
 
           return ListView.separated(
-            padding: const EdgeInsets.all(12),
-            itemCount: lista.length,
-            separatorBuilder: (_, __) => const SizedBox(height: 8),
+            padding: const EdgeInsets.all(15),
+            itemCount: docs.length,
+            separatorBuilder: (_, __) => const SizedBox(height: 10),
             itemBuilder: (context, index) {
-              final med = lista[index];
+              final item = docs[index];
+              final data = item.data() as Map<String, dynamic>;
 
-              final created = med.criadoEm;
-              final dateStr = '${created.day.toString().padLeft(2, '0')}/'
-                  '${created.month.toString().padLeft(2, '0')}/'
-                  '${created.year} ${created.hour.toString().padLeft(2, '0')}:'
-                  '${created.minute.toString().padLeft(2, '0')}';
+              final acao = data['acao'] ?? '';
+              final obs = data['observacao'] ?? '';
+              final ts = data['criadoEm'] as Timestamp?;
+              final date = ts?.toDate();
+
+              final dateStr = date != null
+                  ? '${date.day.toString().padLeft(2, '0')}/'
+                      '${date.month.toString().padLeft(2, '0')}/'
+                      '${date.year} - '
+                      '${date.hour.toString().padLeft(2, '0')}:'
+                      '${date.minute.toString().padLeft(2, '0')}'
+                  : 'Sem data';
 
               return Card(
+                elevation: 3,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
                 child: ListTile(
-                  title: Text(med.nome),
+                  leading: const Icon(
+                    Icons.history,
+                    color: Color(0xFF1976D2),
+                    size: 30,
+                  ),
+                  title: Text(
+                    acao,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 17,
+                    ),
+                  ),
                   subtitle: Text(
-                    '${med.dose} • ${med.horario}\n'
-                    'Obs: ${med.observacao}\n'
-                    'Aplicado em: $dateStr',
+                    'Obs: $obs\n$dateStr',
+                    style: const TextStyle(fontSize: 14),
                   ),
                 ),
               );

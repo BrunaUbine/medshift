@@ -46,28 +46,27 @@ class PacientesController extends ChangeNotifier {
     acompanhanteCtl.clear();
   }
 
- Stream<QuerySnapshot> listarPacientesStream() {
+  Stream<QuerySnapshot> listarPacientesStream() {
   final uid = auth.currentUser!.uid;
 
   return db
       .collection("pacientes")
       .where("uidUsuario", isEqualTo: uid)
-      .orderBy("criadoEm", descending: false)
       .snapshots();
-  }
+}
+
   Future<List<Paciente>> listarPacientes() async {
     final uid = auth.currentUser!.uid;
 
     final snap = await db
         .collection("pacientes")
         .where("uidUsuario", isEqualTo: uid)
-        .orderBy("nomeLower")
         .get();
 
     return snap.docs.map((doc) {
       final data = doc.data();
       return Paciente(
-        id: doc.id.hashCode, // ou pode criar campo “id”
+        id: doc.id.hashCode,
         nome: data["nome"],
         telefone: data["telefone"],
         acompanhante: data["acompanhante"],

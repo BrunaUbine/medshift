@@ -1,17 +1,14 @@
-import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 import 'package:medshift/Controller/prontuarioController.dart';
-import 'package:medshift/View/components/popup_menu.dart';
-import 'package:provider/provider.dart';
 
 class ProntuariosView extends StatefulWidget {
   final String pacienteId;
-  final String nomePaciente;
-
+  final String? pacienteNome; 
   const ProntuariosView({
     super.key,
     required this.pacienteId,
-    required this.nomePaciente,
+    this.pacienteNome,
   });
 
   @override
@@ -19,116 +16,79 @@ class ProntuariosView extends StatefulWidget {
 }
 
 class _ProntuariosViewState extends State<ProntuariosView> {
+  final controller = ProntuarioController();
+
   @override
   Widget build(BuildContext context) {
-    final controller = Provider.of<ProntuarioController>(context);
-
     return Scaffold(
       appBar: AppBar(
-        title: Text("Prontuário — ${widget.nomePaciente}"),
+        title: Text(widget.pacienteNome ?? "Prontuário"),
         backgroundColor: const Color(0xFF1976D2),
-        elevation: 0,
-        actions: [buildPopupMenu(context)],
       ),
-
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              "Nova Anotação",
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF1976D2),
-                fontSize: 16,
-              ),
+            TextFormField(
+              controller: controller.tituloCtl,
+              decoration: const InputDecoration(labelText: "Título"),
             ),
-            const SizedBox(height: 10),
-
-            Card(
-              elevation: 3,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(12),
-                child: Column(
-                  children: [
-                    TextField(
-                      controller: controller.tituloCtl,
-                      decoration: const InputDecoration(
-                        labelText: "Título",
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    TextField(
-                      controller: controller.descricaoCtl,
-                      maxLines: 3,
-                      decoration: const InputDecoration(labelText: "Descrição"),
-                    ),
-                    const SizedBox(height: 10),
-
-                    ElevatedButton(
-                      onPressed: () async {
-                        final erro = await controller
-                            .adicionarAnotacao(widget.pacienteId);
-
-                        if (!mounted) return;
-
-                        if (erro != null) {
-                          ScaffoldMessenger.of(context)
-                              .showSnackBar(SnackBar(content: Text(erro)));
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text("Anotação salva!"),
-                              backgroundColor: Colors.green,
-                            ),
-                          );
-                        }
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF1976D2),
-                        minimumSize: const Size(double.infinity, 45),
-                      ),
-                      child: const Text("Salvar"),
-                    ),
-                  ],
-                ),
-              ),
+            const SizedBox(height: 12),
+            TextFormField(
+              controller: controller.descricaoCtl,
+              maxLines: 3,
+              decoration: const InputDecoration(labelText: "Descrição"),
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton.icon(
+              icon: const Icon(Icons.save),
+              label: const Text("Salvar anotação"),
+              onPressed: () async {
+                final erro = await controller.adicionarAnotacao(widget.pacienteId);
+                if (!mounted) return;
+                if (erro != null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(erro)),
+                  );
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text("Anotação salva!")),
+                  );
+                }
+              },
             ),
 
-            const SizedBox(height: 20),
+            const Divider(height: 32),
 
             const Text(
-              "Histórico do Prontuário",
+              "Histórico de Prontuário",
               style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF1976D2),
                 fontSize: 16,
+                fontWeight: FontWeight.bold,
               ),
             ),
+
             const SizedBox(height: 10),
 
             Expanded(
               child: StreamBuilder<QuerySnapshot>(
                 stream: controller.listarPorPacienteStream(widget.pacienteId),
-                builder: (context, snapshot) {
-                  if (!snapshot.hasData) {
+                builder: (context, snap) {
+                  if (snap.connectionState == ConnectionState.waiting) {
                     return const Center(child: CircularProgressIndicator());
                   }
 
-                  final docs = snapshot.data!.docs;
-
-                  if (docs.isEmpty) {
+                  if (!snap.hasData || snap.data!.docs.isEmpty) {
                     return const Center(
                       child: Text(
-                        "Nenhuma anotação registrada.",
+                        "Nenhuma anotação encontrada.",
                         style: TextStyle(color: Colors.grey),
                       ),
                     );
                   }
+
+                  final docs = snap.data!.docs;
 
                   return ListView(
                     children: docs.map((doc) {
@@ -140,40 +100,30 @@ class _ProntuariosViewState extends State<ProntuariosView> {
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: ListTile(
-                          title: Text(
-                            data["titulo"],
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                            ),
+                          title: Text(data["titulo"] ?? ""),
+                          subtitle: Text(data["descricao"] ?? ""),
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                dt != null
+                                    ? "${dt.day}/${dt.month}/${dt.year}"
+                                    : "",
+                                style: const TextStyle(color: Colors.grey),
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.delete_outline, color: Colors.red),
+                                onPressed: () async {
+                                  final erro = await controller.removerAnotacao(doc.id);
+                                  if (erro != null && mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(content: Text(erro)),
+                                    );
+                                  }
+                                },
+                              ),
+                            ],
                           ),
-                          subtitle: Text(data["descricao"]),
-
-                          trailing: Text(
-                            dt != null
-                                ? "${dt.day}/${dt.month}/${dt.year}"
-                                : "",
-                            style: const TextStyle(color: Colors.grey),
-                          ),
-
-                          onLongPress: () async {
-                            final erro =
-                                await controller.removerAnotacao(doc.id);
-
-                            if (!mounted) return;
-
-                            if (erro != null) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text(erro)),
-                              );
-                            } else {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text("Anotação removida."),
-                                  backgroundColor: Colors.red,
-                                ),
-                              );
-                            }
-                          },
                         ),
                       );
                     }).toList(),
