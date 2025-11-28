@@ -17,6 +17,51 @@ class Cadastrocontroller {
   final FirebaseAuth auth = FirebaseAuth.instance;
   final FirebaseFirestore db = FirebaseFirestore.instance;
 
+
+  void formatarData(String value) {
+    String nums = value.replaceAll(RegExp(r'[^0-9]'), '');
+
+    if (nums.length > 8) nums = nums.substring(0, 8);
+
+    String formatada = "";
+    if (nums.length >= 3 && nums.length <= 4) {
+      formatada = "${nums.substring(0, 2)}/${nums.substring(2)}";
+    } else if (nums.length >= 5) {
+      formatada =
+          "${nums.substring(0, 2)}/${nums.substring(2, 4)}/${nums.substring(4)}";
+    } else {
+      formatada = nums;
+    }
+
+    dtNascimentoController.value = TextEditingValue(
+      text: formatada,
+      selection: TextSelection.collapsed(offset: formatada.length),
+    );
+  }
+
+
+  void formatarTelefone(String value) {
+    String nums = value.replaceAll(RegExp(r'[^0-9]'), '');
+
+    if (nums.length > 11) nums = nums.substring(0, 11);
+
+    String formatado = "";
+    if (nums.length >= 1) {
+      formatado = "(${nums.substring(0, nums.length.clamp(0, 2))}";
+    }
+    if (nums.length >= 3) {
+      formatado += ")${nums.substring(2, nums.length.clamp(2, 7))}";
+    }
+    if (nums.length >= 8) {
+      formatado += "-${nums.substring(7)}";
+    }
+
+    telefoneController.value = TextEditingValue(
+      text: formatado,
+      selection: TextSelection.collapsed(offset: formatado.length),
+    );
+  }
+
   Future<String?> cadastro() async {
     carregando.value = true;
 
@@ -47,7 +92,7 @@ class Cadastrocontroller {
       return 'As senhas deverão ser iguais.';
     }
 
-    if (telefone.isEmpty || telefone.length < 8) {
+    if (telefone.isEmpty || telefone.length < 14) {
       carregando.value = false;
       return 'Telefone inválido.';
     }

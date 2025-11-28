@@ -39,26 +39,27 @@ class _LoginViewState extends State<LoginView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFF6F3FA),
 
       appBar: AppBar(
         title: const Text(
           'MedShift',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         backgroundColor: const Color(0xFF1976D2),
         centerTitle: true,
         iconTheme: const IconThemeData(color: Colors.white),
-        actions: [
-          buildPopupMenu(context),
-        ],
+        actions: [buildPopupMenu(context)],
       ),
 
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Column(
           children: [
-
-            const SizedBox(height: 20),
+            const SizedBox(height: 10),
 
             SizedBox(
               height: 180,
@@ -67,25 +68,55 @@ class _LoginViewState extends State<LoginView> {
 
             const SizedBox(height: 30),
 
-            TextField(
-              controller: _controller.txtEmail,
-              decoration: const InputDecoration(
-                labelText: 'Email',
-                prefixIcon: Icon(Icons.email_outlined),
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.08),
+                    blurRadius: 6,
+                    offset: const Offset(0, 3),
+                  )
+                ],
               ),
-              keyboardType: TextInputType.emailAddress,
+              child: TextField(
+                controller: _controller.txtEmail,
+                decoration: const InputDecoration(
+                  labelText: 'Email',
+                  prefixIcon: Icon(Icons.email_outlined),
+                  border: InputBorder.none,
+                  contentPadding: EdgeInsets.all(16),
+                ),
+                keyboardType: TextInputType.emailAddress,
+              ),
             ),
 
             const SizedBox(height: 20),
 
-            TextField(
-              controller: _controller.txtSenha,
-              decoration: const InputDecoration(
-                labelText: 'Senha',
-                prefixIcon: Icon(Icons.lock_outline),
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.08),
+                    blurRadius: 6,
+                    offset: const Offset(0, 3),
+                  )
+                ],
               ),
-              obscureText: true,
-              onSubmitted: (_) => _handleLogin(),
+              child: TextField(
+                controller: _controller.txtSenha,
+                decoration: const InputDecoration(
+                  labelText: 'Senha',
+                  prefixIcon: Icon(Icons.lock_outline),
+                  border: InputBorder.none,
+                  contentPadding: EdgeInsets.all(16),
+                ),
+                obscureText: true,
+                onSubmitted: (_) => _handleLogin(),
+              ),
             ),
 
             Align(
@@ -99,22 +130,30 @@ class _LoginViewState extends State<LoginView> {
                     ),
                   );
                 },
-                child: const Text("Esqueci minha senha"),
+                child: const Text(
+                  "Esqueci minha senha",
+                  style: TextStyle(
+                    color: Color(0xFF1976D2),
+                  ),
+                ),
               ),
             ),
 
-            const SizedBox(height: 20),
+            const SizedBox(height: 10),
 
             carregando
-                ? const CircularProgressIndicator()
+                ? const CircularProgressIndicator(color: Color(0xFF1976D2))
                 : ElevatedButton(
                     onPressed: _handleLogin,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF1976D2),
                       foregroundColor: Colors.white,
-                      minimumSize: const Size(double.infinity, 50),
+                      minimumSize: const Size(double.infinity, 52),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                       textStyle: const TextStyle(
-                        fontSize: 16,
+                        fontSize: 17,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -131,14 +170,18 @@ class _LoginViewState extends State<LoginView> {
                 );
               },
               style: OutlinedButton.styleFrom(
-                side: const BorderSide(color: Color(0xFF1976D2)),
+                side: const BorderSide(color: Color(0xFF1976D2), width: 1.4),
                 foregroundColor: const Color(0xFF1976D2),
-                minimumSize: const Size(double.infinity, 50),
+                minimumSize: const Size(double.infinity, 52),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                textStyle: const TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 16,
+                ),
               ),
-              child: const Text(
-                'Cadastrar',
-                style: TextStyle(fontSize: 16),
-              ),
+              child: const Text('Criar conta'),
             ),
           ],
         ),

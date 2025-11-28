@@ -17,164 +17,128 @@ class MedicamentosView extends StatefulWidget {
 }
 
 class _MedicamentosViewState extends State<MedicamentosView> {
-  final LayerLink _layerLink = LayerLink();
-  OverlayEntry? _overlayEntry;
-  bool mostrandoSugestoes = false;
-
-  void mostrarSugestoes() {
-    if (_overlayEntry != null) return;
-
-    final controller = Provider.of<MedicamentosController>(context, listen: false);
-
-    _overlayEntry = OverlayEntry(
-      builder: (context) => Positioned(
-        width: MediaQuery.of(context).size.width - 40,
-        child: CompositedTransformFollower(
-          link: _layerLink,
-          offset: const Offset(0, 55),
-          showWhenUnlinked: false,
-          child: Material(
-            elevation: 4,
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(8),
-            child: AnimatedBuilder(
-              animation: controller,
-              builder: (context, _) {
-                if (controller.sugestoes.isEmpty) {
-                  return const SizedBox.shrink();
-                }
-                return ListView(
-                  shrinkWrap: true,
-                  padding: EdgeInsets.zero,
-                  children: controller.sugestoes.map((item) {
-                    return ListTile(
-                      title: Text(item),
-                      onTap: () {
-                        controller.nomeCtl.text = item;
-                        esconderSugestoes();
-                      },
-                    );
-                  }).toList(),
-                );
-              },
-            ),
-          ),
-        ),
-      ),
-    );
-
-    Overlay.of(context).insert(_overlayEntry!);
-  }
-
-  void esconderSugestoes() {
-    _overlayEntry?.remove();
-    _overlayEntry = null;
-  }
-
   @override
   Widget build(BuildContext context) {
     final controller = Provider.of<MedicamentosController>(context);
 
     return Scaffold(
+      backgroundColor: const Color(0xFFF6F3FA),
       appBar: AppBar(
         backgroundColor: const Color(0xFF1976D2),
-        title: Text("Medicamentos — ${widget.pacienteNome}"),
+        title: Text(
+          "Medicamentos — ${widget.pacienteNome}",
+          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
+        centerTitle: true,
       ),
-      body: GestureDetector(
-        onTap: esconderSugestoes,
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text("Adicionar Medicamento",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
 
-              const SizedBox(height: 20),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              "Adicionar Medicamento",
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF1976D2),
+              ),
+            ),
 
-              CompositedTransformTarget(
-                link: _layerLink,
-                child: TextField(
-                  controller: controller.nomeCtl,
-                  decoration: InputDecoration(
-                    labelText: "Nome do Medicamento",
-                    prefixIcon: const Icon(Icons.search),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                  ),
-                  onChanged: (texto) async {
-                    if (texto.length < 2) {
-                      controller.sugestoes = [];
-                      esconderSugestoes();
-                      return;
-                    }
+            const SizedBox(height: 20),
 
-                    await controller.buscarMedicamentos(texto);
-
-                    if (controller.sugestoes.isNotEmpty) {
-                      mostrarSugestoes();
-                    } else {
-                      esconderSugestoes();
-                    }
-                  },
+            TextField(
+              controller: controller.nomeCtl,
+              decoration: InputDecoration(
+                labelText: "Nome do Medicamento",
+                prefixIcon: const Icon(Icons.medical_services_outlined),
+                filled: true,
+                fillColor: Colors.white,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
                 ),
               ),
+            ),
 
-              const SizedBox(height: 20),
+            const SizedBox(height: 20),
 
-              TextField(
-                controller: controller.doseCtl,
-                decoration: const InputDecoration(
-                  labelText: "Dose",
-                  prefixIcon: Icon(Icons.medical_information),
+            TextField(
+              controller: controller.doseCtl,
+              decoration: InputDecoration(
+                labelText: "Dose",
+                prefixIcon: const Icon(Icons.monitor_weight_outlined),
+                filled: true,
+                fillColor: Colors.white,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
                 ),
               ),
+            ),
 
-              const SizedBox(height: 20),
+            const SizedBox(height: 20),
 
-              TextField(
-                controller: controller.horarioCtl,
-                decoration: const InputDecoration(
-                  labelText: "Horário",
-                  prefixIcon: Icon(Icons.schedule),
+            TextField(
+              controller: controller.horarioCtl,
+              decoration: InputDecoration(
+                labelText: "Horário",
+                prefixIcon: const Icon(Icons.schedule),
+                filled: true,
+                fillColor: Colors.white,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
                 ),
               ),
+            ),
 
-              const SizedBox(height: 20),
+            const SizedBox(height: 20),
 
-              TextField(
-                controller: controller.obsCtl,
-                decoration: const InputDecoration(
-                  labelText: "Observação",
-                  prefixIcon: Icon(Icons.description_outlined),
+            TextField(
+              controller: controller.obsCtl,
+              maxLines: 2,
+              decoration: InputDecoration(
+                labelText: "Observação",
+                prefixIcon: const Icon(Icons.description_outlined),
+                filled: true,
+                fillColor: Colors.white,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
                 ),
               ),
+            ),
 
-              const SizedBox(height: 25),
+            const SizedBox(height: 30),
 
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF1976D2),
-                  minimumSize: const Size(double.infinity, 50),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF1976D2),
+                minimumSize: const Size(double.infinity, 50),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                onPressed: () async {
-                  final erro = await controller.salvarMedicamento(widget.pacienteId);
-
-                  if (erro != null && mounted) {
-                    ScaffoldMessenger.of(context)
-                        .showSnackBar(SnackBar(content: Text(erro)));
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text("Medicamento salvo!"),
-                        backgroundColor: Colors.green,
-                      ),
-                    );
-                  }
-                },
-                child: const Text("Salvar", style: TextStyle(color: Colors.white)),
               ),
-            ],
-          ),
+              onPressed: () async {
+                final erro =
+                    await controller.salvarMedicamento(widget.pacienteId);
+
+                if (erro != null && mounted) {
+                  ScaffoldMessenger.of(context)
+                      .showSnackBar(SnackBar(content: Text(erro)));
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text("Medicamento salvo!"),
+                      backgroundColor: Colors.green,
+                    ),
+                  );
+                }
+              },
+              child: const Text(
+                "Salvar",
+                style: TextStyle(color: Colors.white, fontSize: 16),
+              ),
+            ),
+          ],
         ),
       ),
     );

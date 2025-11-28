@@ -22,7 +22,7 @@ class AnotacoesController extends ChangeNotifier{
       });
       textoCtl.clear();
       notifyListeners();
-      return null; // sucesso
+      return null; 
 
     } catch (e) {
       return "Erro ao salvar anotação: $e";
@@ -45,7 +45,6 @@ class AnotacoesController extends ChangeNotifier{
     final snap = await db
         .collection("anotacoes")
         .where("uidUsuario", isEqualTo: uid)
-        .orderBy("criadoEm", descending: true)
         .get();
 
     return snap.docs.map((doc) {

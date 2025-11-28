@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:medshift/View/tela_compartilhadaView.dart';
+import 'package:medshift/View/components/popup_menu.dart';
 import 'package:provider/provider.dart';
-
 import '../Controller/pacientesController.dart';
-import '../utils/app_routes.dart';
+import '../View/tela_compartilhadaView.dart';
 
 class PacientesView extends StatefulWidget {
   const PacientesView({super.key});
@@ -20,71 +19,91 @@ class _PacientesViewState extends State<PacientesView> {
     final controller = Provider.of<PacientesController>(context);
 
     return Scaffold(
+      backgroundColor: const Color(0xFFF6F3FA),
       appBar: AppBar(
         title: const Text(
           'Pacientes',
-          style: TextStyle(color: Colors.white),
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         backgroundColor: const Color(0xFF1976D2),
         centerTitle: true,
+        actions: [
+          buildPopupMenu(context),
+        ],
       ),
 
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(18),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            _buildFormulario(controller),
-            const SizedBox(height: 24),
-            _buildLista(controller),
+            _formCard(controller),
+            const SizedBox(height: 25),
+            _listaPacientes(controller),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildFormulario(PacientesController controller) {
+  Widget _formCard(PacientesController controller) {
     return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      elevation: 3,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(18),
         child: Form(
           key: formKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+
+              TextField(
+                decoration: InputDecoration(
+                  labelText: "Pesquisar paciente...",
+                  prefixIcon: Icon(Icons.search),
+                ),
+                onChanged: (valor) {
+                  controller.atualizarFiltro(valor);
+                },
+              ),
+              SizedBox(height: 20),
+
               const Text(
-                'Cadastrar Paciente',
+                "Cadastrar Paciente",
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 18,
+                  fontSize: 20,
                   color: Color(0xFF1976D2),
+                  fontWeight: FontWeight.bold,
                 ),
               ),
 
-              const SizedBox(height: 16),
+              const SizedBox(height: 18),
 
               TextFormField(
                 controller: controller.nomeCtl,
                 decoration: const InputDecoration(
-                  labelText: 'Nome',
-                  prefixIcon: Icon(Icons.person_outline),
+                  labelText: "Nome",
+                  prefixIcon:
+                      Icon(Icons.person_outline, color: Color(0xFF1976D2)),
                 ),
                 validator: (v) =>
-                    v == null || v.trim().isEmpty ? "Informe o nome" : null,
+                    (v == null || v.trim().isEmpty) ? "Informe o nome" : null,
               ),
 
               const SizedBox(height: 12),
 
               TextFormField(
                 controller: controller.telefoneCtl,
+                keyboardType: TextInputType.phone,
                 decoration: const InputDecoration(
-                  labelText: 'Telefone',
-                  prefixIcon: Icon(Icons.phone_outlined),
+                  labelText: "Telefone",
+                  prefixIcon:
+                      Icon(Icons.phone_outlined, color: Color(0xFF1976D2)),
                 ),
               ),
 
@@ -93,20 +112,21 @@ class _PacientesViewState extends State<PacientesView> {
               TextFormField(
                 controller: controller.acompanhanteCtl,
                 decoration: const InputDecoration(
-                  labelText: 'Acompanhante',
-                  prefixIcon: Icon(Icons.people_alt_outlined),
+                  labelText: "Acompanhante",
+                  prefixIcon:
+                      Icon(Icons.people_alt_outlined, color: Color(0xFF1976D2)),
                 ),
               ),
 
               const SizedBox(height: 20),
 
               ElevatedButton.icon(
-                icon: const Icon(Icons.save),
+                icon: const Icon(Icons.save, color: Colors.white),
                 label: const Text(
-                  'Salvar Paciente',
+                  "Salvar Paciente",
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
-                    color: Colors.white
+                    color: Colors.white,
                   ),
                 ),
                 style: ElevatedButton.styleFrom(
@@ -117,14 +137,16 @@ class _PacientesViewState extends State<PacientesView> {
                   if (formKey.currentState!.validate()) {
                     final erro = await controller.addPaciente();
 
-                    if (erro != null && mounted) {
+                    if (!mounted) return;
+
+                    if (erro != null) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text(erro)),
                       );
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
-                          content: Text('Paciente cadastrado!'),
+                          content: Text("Paciente cadastrado!"),
                           backgroundColor: Colors.green,
                         ),
                       );
@@ -138,7 +160,8 @@ class _PacientesViewState extends State<PacientesView> {
       ),
     );
   }
-  Widget _buildLista(PacientesController controller) {
+
+  Widget _listaPacientes(PacientesController controller) {
     return StreamBuilder(
       stream: controller.listarPacientesStream(),
       builder: (context, snapshot) {
@@ -161,53 +184,66 @@ class _PacientesViewState extends State<PacientesView> {
           );
         }
 
-        final docs = snapshot.data!.docs;
+        final docs = snapshot.data!.docs.where((doc) {
+        final nome = (doc["nome"] ?? "").toString().toLowerCase();
+        return nome.contains(controller.filtro);
+        }).toList();
 
         return Column(
           children: docs.map((doc) {
             final data = doc.data() as Map<String, dynamic>;
 
             return Card(
-              elevation: 3,
+              elevation: 2,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(16),
               ),
               margin: const EdgeInsets.symmetric(vertical: 6),
               child: ListTile(
-                leading: const Icon(
-                  Icons.person,
-                  color: Color(0xFF1976D2),
+                contentPadding:
+                    const EdgeInsets.symmetric(vertical: 6, horizontal: 16),
+
+                leading: CircleAvatar(
+                  backgroundColor: const Color(0xFF1976D2).withOpacity(0.15),
+                  radius: 22,
+                  child:
+                      const Icon(Icons.person, color: Color(0xFF1976D2), size: 26),
                 ),
 
                 title: Text(
                   data["nome"],
                   style: const TextStyle(
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
                   ),
                 ),
 
                 subtitle: Text(
                   "Acompanhante: ${data["acompanhante"]?.isEmpty ?? true ? "-" : data["acompanhante"]}",
+                  style: const TextStyle(color: Colors.grey),
                 ),
 
                 trailing: IconButton(
-                  icon: const Icon(Icons.delete_outline, color: Colors.red),
+                  icon: const Icon(Icons.delete, color: Colors.red),
                   onPressed: () async {
                     final erro = await controller.removerPaciente(doc.id);
-                    if (erro != null && mounted) {
+                    if (!mounted) return;
+
+                    if (erro != null) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text(erro)),
                       );
                     }
                   },
                 ),
+
                 onTap: () {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (_) => TelaCompartilhadaView(
                         pacienteId: doc.id,
-                        pacienteNome: data['nome'],
+                        pacienteNome: data["nome"],
                       ),
                     ),
                   );

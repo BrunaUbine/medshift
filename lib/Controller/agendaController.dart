@@ -11,17 +11,31 @@ class AgendaController extends ChangeNotifier {
 
   Future<void> selecionarData(BuildContext context) async {
     final now = DateTime.now();
+
     final data = await showDatePicker(
       context: context,
       initialDate: now,
       firstDate: DateTime(now.year - 2),
       lastDate: DateTime(now.year + 2),
     );
-    if (data == null) return;
-    final hora = await showTimePicker(context: context, initialTime: TimeOfDay.now());
-    if (hora == null) return;
 
-    dataSelecionada = DateTime(data.year, data.month, data.day, hora.hour, hora.minute);
+    if (data == null) return; 
+    final hora = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.now(),
+    );
+
+    if (hora == null) return; 
+
+    dataSelecionada = DateTime(
+      data.year,
+      data.month,
+      data.day,
+      hora.hour,
+      hora.minute,
+    );
+
+    notifyListeners();
   }
 
   Future<String?> adicionarEvento() async {
@@ -56,7 +70,6 @@ class AgendaController extends ChangeNotifier {
     return db
         .collection("agenda")
         .where("uidUsuario", isEqualTo: uid)
-        .orderBy("dataHora", descending: false)
         .snapshots();
   }
    Future<List<Agenda>> listarEventos() async {
@@ -65,7 +78,6 @@ class AgendaController extends ChangeNotifier {
     final snap = await db
         .collection("agenda")
         .where("uidUsuario", isEqualTo: uid)
-        .orderBy("dataHora", descending: false)
         .get();
 
     return snap.docs.map((doc) {

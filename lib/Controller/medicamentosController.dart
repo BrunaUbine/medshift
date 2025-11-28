@@ -16,51 +16,6 @@ class MedicamentosController extends ChangeNotifier {
   bool carregandoAPI = false;
   List<String> sugestoes = [];
 
-  Future<List<String>> buscarMedicamentos(String texto) async {
-  try {
-    if (texto.isEmpty) return [];
-
-    carregandoAPI = true;
-    notifyListeners();
-
-    final url =
-        "https://api.fda.gov/drug/label.json?search=openfda.brand_name:$texto&limit=20";
-
-    final response = await http.get(Uri.parse(url));
-
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-
-      if (data["results"] != null) {
-        sugestoes = [];
-
-        for (var item in data["results"]) {
-          if (item["openfda"] != null) {
-            final names = item["openfda"]["brand_name"];
-
-            if (names is List && names.isNotEmpty) {
-              sugestoes.add(names.first.toString());
-            }
-          }
-        }
-        if (sugestoes.isEmpty) {
-          sugestoes = ["Nenhum medicamento encontrado"];
-        }
-      } else {
-        sugestoes = ["Nenhum resultado encontrado"];
-      }
-    } else {
-      sugestoes = ["Erro na API (${response.statusCode})"];
-    }
-  } catch (e) {
-    sugestoes = ["Erro inesperado"];
-  }
-
-  carregandoAPI = false;
-  notifyListeners();
-  return sugestoes;
-}
-
   Future<String?> salvarMedicamento(String pacienteId) async {
     try {
       final uid = auth.currentUser!.uid;
@@ -89,7 +44,6 @@ class MedicamentosController extends ChangeNotifier {
         .collection("medicamentos")
         .where("uidUsuario", isEqualTo: uid)
         .where("pacienteId", isEqualTo: pacienteId)
-        .orderBy("criadoEm", descending: true)
         .snapshots();
   }
 

@@ -42,7 +42,6 @@ class ProntuarioController extends ChangeNotifier {
         .collection("prontuarios")
         .where("uidUsuario", isEqualTo: uid)
         .where("pacienteId", isEqualTo: pacienteId)
-        .orderBy("criadoEm", descending: true)
         .snapshots();
   }
 

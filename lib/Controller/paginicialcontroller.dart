@@ -16,7 +16,7 @@ class PaginaInicialController extends ChangeNotifier {
   final Map<String, IconData> funcionalidadeIcons = {
     "Pacientes": Icons.people_alt,
     "Agenda": Icons.calendar_month,
-    "Anotações": Icons.edit_note,
+    "Medicos": Icons.people_alt,
     "Sobre": Icons.info_outline,
     "Sair": Icons.logout,
   };
@@ -35,6 +35,10 @@ class PaginaInicialController extends ChangeNotifier {
 
       case "Agenda":
         Navigator.pushNamed(context, AppRoutes.agenda);
+        break;
+
+      case "Médicos":
+        Navigator.pushNamed(context, AppRoutes.medicos);
         break;
 
       case "Sobre":

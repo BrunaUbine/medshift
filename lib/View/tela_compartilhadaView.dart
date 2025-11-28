@@ -17,50 +17,90 @@ class TelaCompartilhadaView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFF6F3FA),
+
       appBar: AppBar(
+        backgroundColor: const Color(0xFF1976D2),
         title: Text(
           pacienteNome,
-          style: const TextStyle(color: Colors.white),
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
         ),
-        backgroundColor: const Color(0xFF1976D2),
         centerTitle: true,
       ),
 
-      body: ListView(
-        padding: const EdgeInsets.all(20),
-        children: [
-          ListTile(
-            leading: const Icon(Icons.description, color: Color(0xFF1976D2)),
-            title: const Text("Prontuário"),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => ProntuariosView(pacienteId: pacienteId),
-                ),
-              );
-            },
-          ),
-
-          ListTile(
-            leading: const Icon(Icons.medical_services, color: Color(0xFF1976D2)),
-            title: const Text("Medicamentos"),
-            onTap: () {
-             Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) =>ChangeNotifierProvider(
-                  create: (_) => MedicamentosController(),
-                  child: MedicamentosView(
-                    pacienteId: pacienteId,
-                    pacienteNome: pacienteNome,
+      body: Padding(
+        padding: const EdgeInsets.all(18),
+        child: Column(
+          children: [
+            _tile(
+              icon: Icons.description,
+              title: "Prontuário",
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => ProntuariosView(
+                      pacienteId: pacienteId,
+                      pacienteNome: pacienteNome,
+                    ),
                   ),
-                ),
-              ),
-            );
-            },
+                );
+              },
+            ),
+
+            const SizedBox(height: 10),
+
+            _tile(
+              icon: Icons.medical_services,
+              title: "Medicamentos",
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => MedicamentosView(
+                      pacienteId: pacienteId,
+                      pacienteNome: pacienteNome,
+                    ),
+                  ),
+                );
+              }
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _tile({
+    required IconData icon,
+    required String title,
+    required VoidCallback onTap,
+  }) {
+    return Card(
+      elevation: 3,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: ListTile(
+        leading: CircleAvatar(
+          backgroundColor: const Color(0xFF1976D2).withOpacity(0.15),
+          child: Icon(
+            icon,
+            color: const Color(0xFF1976D2),
           ),
-        ],
+        ),
+        title: Text(
+          title,
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
+          ),
+        ),
+        trailing: const Icon(Icons.arrow_forward_ios, size: 18),
+        onTap: onTap,
       ),
     );
   }

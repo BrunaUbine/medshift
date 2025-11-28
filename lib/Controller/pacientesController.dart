@@ -1,44 +1,44 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../model/paciente.dart';
 import 'package:flutter/material.dart';
+import '../model/paciente.dart';
 
 class PacientesController extends ChangeNotifier {
   final formKey = GlobalKey<FormState>();
   final nomeCtl = TextEditingController();
   final telefoneCtl = TextEditingController();
   final acompanhanteCtl = TextEditingController();
+
   final FirebaseFirestore db = FirebaseFirestore.instance;
   final FirebaseAuth auth = FirebaseAuth.instance;
 
   Future<String?> addPaciente() async {
-    
-    try{
-    final uid = auth.currentUser!.uid;
+    try {
+      final uid = auth.currentUser!.uid;
 
-    final nome = nomeCtl.text.trim();
-    final telefone = telefoneCtl.text.trim();
-    final acompanhante = acompanhanteCtl.text.trim();
+      final nome = nomeCtl.text.trim();
+      final telefone = telefoneCtl.text.trim();
+      final acompanhante = acompanhanteCtl.text.trim();
 
-    if (nome.isEmpty) return 'Nome é obrigatório.';
+      if (nome.isEmpty) return "Nome é obrigatório.";
 
-    await db.collection("pacientes").add({
-      "nome": nome,
-      "telefone": telefone,
-      "acompanhante": acompanhante,
-      "uidUsuario": uid,
-      "criadoEm": FieldValue.serverTimestamp(),
-      "nomeLower": nome.toLowerCase(),
-    });
-    limparCampos();
-    notifyListeners();
-    return null;
+      await db.collection("pacientes").add({
+        "nome": nome,
+        "telefone": telefone,
+        "acompanhante": acompanhante,
+        "uidUsuario": uid,
+        "criadoEm": FieldValue.serverTimestamp(),
+        "nomeLower": nome.toLowerCase(),
+      });
+
+      limparCampos();
+      notifyListeners();
+      return null;
 
     } catch (e) {
       return "Erro ao adicionar paciente: $e";
     }
   }
-
 
   void limparCampos() {
     nomeCtl.clear();
@@ -46,14 +46,21 @@ class PacientesController extends ChangeNotifier {
     acompanhanteCtl.clear();
   }
 
-  Stream<QuerySnapshot> listarPacientesStream() {
-  final uid = auth.currentUser!.uid;
+  String filtro = "";
 
-  return db
-      .collection("pacientes")
-      .where("uidUsuario", isEqualTo: uid)
-      .snapshots();
-}
+  void atualizarFiltro(String valor) {
+    filtro = valor.toLowerCase();
+    notifyListeners();
+  }
+
+  Stream<QuerySnapshot> listarPacientesStream() {
+    final uid = auth.currentUser!.uid;
+
+    return db
+        .collection("pacientes")
+        .where("uidUsuario", isEqualTo: uid)
+        .snapshots();
+  }
 
   Future<List<Paciente>> listarPacientes() async {
     final uid = auth.currentUser!.uid;
@@ -92,9 +99,11 @@ class PacientesController extends ChangeNotifier {
         "acompanhante": acompanhanteCtl.text.trim(),
         "nomeLower": nomeCtl.text.trim().toLowerCase(),
       });
+
       limparCampos();
       notifyListeners();
       return null;
+
     } catch (e) {
       return "Erro ao atualizar: $e";
     }

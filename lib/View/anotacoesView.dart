@@ -12,136 +12,153 @@ class AnotacoesView extends StatelessWidget {
     final controller = Provider.of<AnotacoesController>(context);
 
     return Scaffold(
+      backgroundColor: const Color(0xFFF6F3FA),
+
       appBar: AppBar(
         title: const Text(
           "Anotações",
-          style: TextStyle(color: Colors.white),
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
         ),
-        actions: [buildPopupMenu(context)],
         backgroundColor: const Color(0xFF1976D2),
-        iconTheme: const IconThemeData(color: Colors.white),
+        centerTitle: true,
+        actions: [buildPopupMenu(context)],
       ),
 
       body: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(18),
         child: Column(
           children: [
-            Card(
-              elevation: 4,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
+            _formulario(controller),
+            const SizedBox(height: 22),
+            Expanded(child: _listaAnotacoes(controller)),
+          ],
+        ),
+      ),
+    );
+  }
+
+
+  Widget _formulario(AnotacoesController controller) {
+    return Card(
+      elevation: 3,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+      child: Padding(
+        padding: const EdgeInsets.all(18),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const Text(
+              "Nova Anotação",
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 20,
+                color: Color(0xFF1976D2),
               ),
-              child: Padding(
-                padding: const EdgeInsets.all(14),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    const Text(
-                      "Nova Anotação",
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18,
-                        color: Color(0xFF1976D2),
-                      ),
-                    ),
-                    const SizedBox(height: 12),
+            ),
 
-                    TextField(
-                      controller: controller.textoCtl,
-                      decoration: const InputDecoration(
-                        labelText: "Digite sua anotação",
-                        border: OutlineInputBorder(),
-                      ),
-                      maxLines: 3,
-                    ),
+            const SizedBox(height: 16),
 
-                    const SizedBox(height: 12),
-
-                    ElevatedButton(
-                      onPressed: () async {
-                        final erro = await controller.addAnotacao();
-
-                        if (!context.mounted) return;
-
-                        if (erro != null) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text(erro)),
-                          );
-                        }
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF1976D2),
-                        foregroundColor: Colors.white,
-                        minimumSize: const Size(double.infinity, 45),
-                      ),
-                      child: const Text("Salvar"),
-                    ),
-                  ],
+            TextField(
+              controller: controller.textoCtl,
+              maxLines: 4,
+              decoration: InputDecoration(
+                labelText: "Digite sua anotação",
+                prefixIcon: const Icon(Icons.edit, color: Color(0xFF1976D2)),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
                 ),
               ),
             ),
 
-            const SizedBox(height: 20),
+            const SizedBox(height: 18),
 
-            Expanded(
-              child: StreamBuilder<QuerySnapshot>(
-                stream: controller.listarAnotacoesStream(),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(
-                      child: CircularProgressIndicator(),
-                    );
-                  }
+            ElevatedButton(
+              onPressed: () async {
+                final erro = await controller.addAnotacao();
+                if (erro != null) return;
 
-                  if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                    return const Center(
-                      child: Text(
-                        "Nenhuma anotação registrada.",
-                        style: TextStyle(color: Colors.grey),
-                      ),
-                    );
-                  }
-
-                  final docs = snapshot.data!.docs;
-
-                  return ListView.builder(
-                    itemCount: docs.length,
-                    itemBuilder: (context, index) {
-                      final item = docs[index];
-                      final data = item.data() as Map<String, dynamic>;
-                      final texto = data["texto"] ?? "";
-
-                      return Card(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: ListTile(
-                          title: Text(
-                            texto,
-                            style: const TextStyle(fontSize: 16),
-                          ),
-
-                          trailing: IconButton(
-                            icon: const Icon(Icons.delete, color: Colors.red),
-                            onPressed: () async {
-                              final erro = await controller.removerAnotacao(item.id);
-
-                              if (erro != null && context.mounted) {
-                                ScaffoldMessenger.of(context)
-                                    .showSnackBar(SnackBar(content: Text(erro)));
-                              }
-                            },
-                          ),
-                        ),
-                      );
-                    },
-                  );
-                },
+                controller.textoCtl.clear();
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF1976D2),
+                foregroundColor: Colors.white,
+                minimumSize: const Size(double.infinity, 48),
               ),
-            )
+              child: const Text("Salvar Anotação"),
+            ),
           ],
         ),
       ),
+    );
+  }
+
+
+  Widget _listaAnotacoes(AnotacoesController controller) {
+    return StreamBuilder<QuerySnapshot>(
+      stream: controller.listarAnotacoesStream(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(
+            child: CircularProgressIndicator(color: Color(0xFF1976D2)),
+          );
+        }
+
+        if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+          return const Center(
+            child: Text(
+              "Nenhuma anotação registrada.",
+              style: TextStyle(color: Colors.grey),
+            ),
+          );
+        }
+
+        final docs = snapshot.data!.docs;
+
+        return ListView.separated(
+          itemCount: docs.length,
+          separatorBuilder: (_, __) => const SizedBox(height: 10),
+          itemBuilder: (context, i) {
+            final item = docs[i];
+            final data = item.data() as Map<String, dynamic>;
+            final texto = data["texto"] ?? "";
+
+            return Card(
+              elevation: 2,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: ListTile(
+                contentPadding: const EdgeInsets.symmetric(
+                  vertical: 10,
+                  horizontal: 15,
+                ),
+
+                leading: CircleAvatar(
+                  radius: 22,
+                  backgroundColor: const Color(0xFF1976D2).withOpacity(0.15),
+                  child: const Icon(Icons.note_alt, color: Color(0xFF1976D2)),
+                ),
+
+                title: Text(
+                  texto,
+                  style: const TextStyle(fontSize: 16),
+                ),
+
+                trailing: IconButton(
+                  icon: const Icon(Icons.delete, color: Colors.red),
+                  onPressed: () async {
+                    controller.removerAnotacao(item.id);
+                  },
+                ),
+              ),
+            );
+          },
+        );
+      },
     );
   }
 }
