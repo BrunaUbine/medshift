@@ -6,7 +6,7 @@ Widget buildPopupMenu(BuildContext context) {
     onSelected: (value) async {
       switch (value) {
         case 'inicio':
-          Navigator.pushReplacementNamed(context, '/inicio');
+          Navigator.pushNamed(context, '/inicio');
           break;
 
         case 'pacientes':

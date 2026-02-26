@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import 'package:medshift/View/components/popup_menu.dart';
+import 'package:medshift/Controller/chat_Controller.dart';
+import 'package:medshift/View/chat_conversation_view.dart';
 
 class MedicosView extends StatelessWidget {
   const MedicosView({super.key});
@@ -11,13 +13,75 @@ class MedicosView extends StatelessWidget {
     try {
       final data = DateTime.parse(iso);
       return DateFormat('dd/MM/yyyy').format(data);
-    } catch (e) {
+    } catch (_) {
       return "-";
     }
   }
 
+  Widget _ultimaMensagem(String medicoId, String meuUid) {
+    return StreamBuilder<QuerySnapshot>(
+      stream: FirebaseFirestore.instance
+          .collection('conversations')
+          .where('members', arrayContains: meuUid)
+          .orderBy('updatedAt', descending: true)
+          .snapshots(),
+
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return const SizedBox();
+        }
+
+        QueryDocumentSnapshot? conversa;
+
+        for (final doc in snapshot.data!.docs) {
+          final members = List<String>.from(doc['members']);
+          if (members.length == 2 && members.contains(medicoId)) {
+            conversa = doc;
+            break;
+          }
+        }
+
+        if (conversa == null) {
+          return const Text(
+            "Nenhuma mensagem",
+            style: TextStyle(fontSize: 13, color: Colors.grey),
+          );
+        }
+
+        final data = conversa.data() as Map<String, dynamic>;
+
+        final msg = data['lastMessage'] ?? '';
+        final ts = data['lastMessageAt'] as Timestamp?;
+
+        final hora =
+            ts != null ? DateFormat('HH:mm').format(ts.toDate()) : '';
+
+        return Row(
+          children: [
+            Expanded(
+              child: Text(
+                msg,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(fontSize: 13),
+              ),
+            ),
+            const SizedBox(width: 6),
+            Text(
+              hora,
+              style: const TextStyle(fontSize: 12, color: Colors.grey),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final chatController = ChatController();
+    final meuUid = chatController.uid;
+
     return Scaffold(
       backgroundColor: const Color(0xFFF6F3FA),
 
@@ -40,26 +104,23 @@ class MedicosView extends StatelessWidget {
               .snapshots(),
 
           builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
+            if (!snapshot.hasData) {
               return const Center(child: CircularProgressIndicator());
             }
 
-            if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-              return const Center(
-                child: Text(
-                  "Nenhum médico encontrado.",
-                  style: TextStyle(color: Colors.grey, fontSize: 16),
-                ),
-              );
-            }
-
             final docs = snapshot.data!.docs;
+
+            if (docs.isEmpty) {
+              return const Center(child: Text("Nenhum médico encontrado."));
+            }
 
             return ListView.separated(
               itemCount: docs.length,
               separatorBuilder: (_, __) => const SizedBox(height: 12),
               itemBuilder: (_, index) {
-                final data = docs[index].data() as Map<String, dynamic>;
+                final doc = docs[index];
+                final data = doc.data() as Map<String, dynamic>;
+                final medicoId = doc.id;
 
                 return Card(
                   elevation: 4,
@@ -73,7 +134,10 @@ class MedicosView extends StatelessWidget {
                       radius: 26,
                       backgroundColor: const Color(0xFF1976D2),
                       child: Text(
-                        (data["nome"] ?? "?").toString().substring(0, 1).toUpperCase(),
+                        (data["nome"] ?? "?")
+                            .toString()
+                            .substring(0, 1)
+                            .toUpperCase(),
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 22,
@@ -91,63 +155,46 @@ class MedicosView extends StatelessWidget {
                       ),
                     ),
 
-                    subtitle: Padding(
-                      padding: const EdgeInsets.only(top: 6),
-                      child: Text(
-                        "Email: ${data["email"] ?? "-"}\n"
-                        "Telefone: ${data["telefone"] ?? "-"}",
-                        style: const TextStyle(fontSize: 14),
-                      ),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          data["email"] ?? "-",
+                          style: const TextStyle(fontSize: 13),
+                        ),
+                        const SizedBox(height: 6),
+                        _ultimaMensagem(medicoId, meuUid),
+                      ],
                     ),
 
-                    onTap: () {
-                      _abrirDetalhes(context, data);
-                    },
+                    trailing: IconButton(
+                      icon: const Icon(Icons.chat_bubble_outline),
+                      color: const Color(0xFF1976D2),
+                      onPressed: () async {
+                        final conversationId =
+                            await chatController.getOrCreateConversation(
+                          medicoId,
+                        );
+
+                        if (!context.mounted) return;
+
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => ChatConversationView(
+                              conversationId: conversationId,
+                              otherUserName: data["nome"] ?? "Médico",
+                            ),
+                          ),
+                        );
+                      },
+                    ),
                   ),
                 );
               },
             );
           },
         ),
-      ),
-    );
-  }
-
-  void _abrirDetalhes(BuildContext context, Map<String, dynamic> medico) {
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-
-        title: Text(
-          medico["nome"] ?? "Médico",
-          style: const TextStyle(
-            fontWeight: FontWeight.bold,
-            color: Color(0xFF1976D2),
-          ),
-        ),
-
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text("Email: ${medico["email"] ?? "-"}"),
-            const SizedBox(height: 8),
-            Text("Telefone: ${medico["telefone"] ?? "-"}"),
-            const SizedBox(height: 8),
-            Text("Nascimento: ${formatarData(medico["dtNascimento"])}"),
-          ],
-        ),
-
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text(
-              "Fechar",
-              style: TextStyle(color: Color(0xFF1976D2)),
-            ),
-          ),
-        ],
       ),
     );
   }

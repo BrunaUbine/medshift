@@ -35,7 +35,7 @@ class _CadastroViewState extends State<CadastroView> {
 
       if (!mounted) return;
 
-      Navigator.pushReplacement(
+      Navigator.push(
         context,
         MaterialPageRoute(builder: (_) => const LoginView()),
       );

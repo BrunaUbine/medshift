@@ -46,7 +46,7 @@ class Cadastrocontroller {
     if (nums.length > 11) nums = nums.substring(0, 11);
 
     String formatado = "";
-    if (nums.length >= 1) {
+    if (nums.isNotEmpty) {
       formatado = "(${nums.substring(0, nums.length.clamp(0, 2))}";
     }
     if (nums.length >= 3) {

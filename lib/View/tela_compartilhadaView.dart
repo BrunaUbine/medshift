@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:medshift/Controller/medicamentosController.dart';
 import 'package:medshift/View/medicamentosView.dart';
 import 'package:medshift/View/prontuariosView.dart';
-import 'package:provider/provider.dart';
 
 class TelaCompartilhadaView extends StatelessWidget {
   final String pacienteId;
